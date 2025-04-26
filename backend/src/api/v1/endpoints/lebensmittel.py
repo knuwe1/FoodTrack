@@ -9,27 +9,33 @@ from src.schemas.lebensmittel import (
     LebensmittelRead,
     LebensmittelUpdate,
 )
+# Importiere die CRUD-Funktionen (Namen könnten nach Refactoring angepasst sein)
 from src.crud.lebensmittel import (
     create_lebensmittel,
-    get_lebensmittel,
-    get_lebensmittel_list,
+    get_lebensmittel, # Nimmt jetzt ID
+    get_lebensmittel_list, # Umbenannt im CRUD Modul
     update_lebensmittel,
     delete_lebensmittel,
 )
 from src.db.session import get_db
+# Importiere das DB-Modell für Typ-Annotationen, falls benötigt
+from src.models.lebensmittel import Lebensmittel as DBLebensmittel
+
 
 router = APIRouter()
 
 @router.post(
     "/",
     response_model=LebensmittelRead,
-    status_code=status.HTTP_200_OK,
+    # Geändert zu 201 CREATED
+    status_code=status.HTTP_201_CREATED,
 )
 def create_item(
     lebensmittel_in: LebensmittelCreate,
     db: Session = Depends(get_db),
-):
-    return create_lebensmittel(db, lebensmittel_in)
+) -> DBLebensmittel: # Rückgabetyp angepasst
+    # Ruft die korrigierte CRUD-Funktion auf
+    return create_lebensmittel(db=db, lebensmittel_in=lebensmittel_in)
 
 
 @router.get(
@@ -41,8 +47,9 @@ def read_items(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-):
-    return get_lebensmittel_list(db, skip=skip, limit=limit)
+) -> List[DBLebensmittel]: # Rückgabetyp angepasst
+    # Ruft die umbenannte/korrigierte CRUD-Funktion auf
+    return get_lebensmittel_list(db=db, skip=skip, limit=limit)
 
 
 @router.get(
@@ -53,8 +60,9 @@ def read_items(
 def read_item(
     lebensmittel_id: int,
     db: Session = Depends(get_db),
-):
-    db_item = get_lebensmittel(db, lebensmittel_id)
+) -> DBLebensmittel: # Rückgabetyp angepasst
+    # Ruft die korrigierte CRUD-Funktion auf (die jetzt nach ID sucht)
+    db_item = get_lebensmittel(db=db, item_id=lebensmittel_id)
     if not db_item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -70,16 +78,18 @@ def read_item(
 )
 def update_item(
     lebensmittel_id: int,
-    lebensmittel_in: LebensmittelUpdate,
+    lebensmittel_in: LebensmittelUpdate, # Korrektes Schema für Update
     db: Session = Depends(get_db),
-):
-    db_item = get_lebensmittel(db, lebensmittel_id)
+) -> DBLebensmittel: # Rückgabetyp angepasst
+    # Holt das Item zuerst
+    db_item = get_lebensmittel(db=db, item_id=lebensmittel_id)
     if not db_item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Lebensmittel nicht gefunden",
         )
-    return update_lebensmittel(db, db_item, lebensmittel_in)
+    # Übergibt db_item und lebensmittel_in an die korrigierte CRUD-Funktion
+    return update_lebensmittel(db=db, db_item=db_item, lebensmittel_in=lebensmittel_in)
 
 
 @router.delete(
@@ -89,12 +99,14 @@ def update_item(
 def delete_item(
     lebensmittel_id: int,
     db: Session = Depends(get_db),
-):
-    db_item = get_lebensmittel(db, lebensmittel_id)
+) -> None: # Rückgabetyp angepasst
+    # Holt das Item zuerst
+    db_item = get_lebensmittel(db=db, item_id=lebensmittel_id)
     if not db_item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Lebensmittel nicht gefunden",
         )
-    delete_lebensmittel(db, db_item)
-    # kein return-Body für 204
+    # Übergibt db_item an die korrigierte CRUD-Funktion
+    delete_lebensmittel(db=db, db_item=db_item)
+    # Kein return-Body für 204

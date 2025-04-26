@@ -1,4 +1,6 @@
-from pydantic import BaseModel, EmailStr
+# backend/src/schemas/user.py
+
+from pydantic import BaseModel, EmailStr, ConfigDict
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -8,10 +10,13 @@ class UserCreate(UserBase):
 
 class UserRead(UserBase):
     id: int
-    is_active: int
+    # Geändert von int zu bool für Klarheit
+    is_active: bool
 
-    class Config:
-        orm_mode = True
+    # Pydantic v2 Konfiguration
+    model_config = ConfigDict(
+        from_attributes=True # Ersetzt orm_mode = True
+    )
 
 class Token(BaseModel):
     access_token: str

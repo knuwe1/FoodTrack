@@ -1,13 +1,14 @@
+# backend/src/db/session.py
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from .base import Base
 from ..config import settings
 
 # Engine erzeugen
-engine = create_engine(
-    settings.DATABASE_URL,
-    connect_args={"check_same_thread": False}  # nur für SQLite
-)
+# Die Option connect_args={"check_same_thread": False} wurde entfernt,
+# da sie spezifisch für SQLite ist und für PostgreSQL nicht benötigt wird.
+engine = create_engine(settings.DATABASE_URL)
 
 # Session-Klasse
 SessionLocal = sessionmaker(
@@ -26,4 +27,8 @@ def get_db():
 
 # Tabellen erstellen (einmalig beim Start)
 def init_db():
+    # Stelle sicher, dass alle Modelle importiert sind, bevor create_all aufgerufen wird.
+    # Dies kann durch Importieren der Modelle hier oder in db.base geschehen.
+    from ..models.lebensmittel import Lebensmittel # Beispielimport
+    from ..models.user import User # Beispielimport
     Base.metadata.create_all(bind=engine)

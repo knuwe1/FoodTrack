@@ -1,20 +1,27 @@
+# backend/src/schemas/lebensmittel.py
+
 from datetime import date
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 class LebensmittelBase(BaseModel):
     name: str
     # Menge wird als Alias "quantity" exponiert
+    # Field(...) macht das Feld erforderlich
     menge: int = Field(..., alias="quantity")
     einheit: Optional[str] = None
     ablaufdatum: Optional[date] = None
     kategorie: Optional[str] = None
 
-    class Config:
-        # Damit Pydantic Eingaben über das Alias "quantity" annimmt
-        allow_population_by_field_name = True
+    # Pydantic v2 Konfiguration
+    model_config = ConfigDict(
+        populate_by_name=True, # Ersetzt allow_population_by_field_name
+        alias_generator=lambda field_name: field_name # Standardmäßig, aber explizit für Klarheit
+    )
+
 
 class LebensmittelCreate(LebensmittelBase):
+    # Erbt die Konfiguration von LebensmittelBase
     pass
 
 class LebensmittelUpdate(BaseModel):
@@ -25,14 +32,18 @@ class LebensmittelUpdate(BaseModel):
     ablaufdatum: Optional[date] = None
     kategorie: Optional[str] = None
 
-    class Config:
-        allow_population_by_field_name = True
+    # Separate Konfiguration für Update, falls benötigt
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=lambda field_name: field_name
+    )
 
 class LebensmittelRead(LebensmittelBase):
     id: int
 
-    class Config:
-        orm_mode = True
-        # Ausgaben verwenden das Alias ("quantity") statt "menge"
-        by_alias = True
-        allow_population_by_field_name = True
+    # Pydantic v2 Konfiguration für ORM-Modus und Aliase bei der Ausgabe
+    model_config = ConfigDict(
+        from_attributes=True, # Ersetzt orm_mode = True
+        populate_by_name=True,
+        alias_generator=lambda field_name: 'quantity' if field_name == 'menge' else field_name # Stellt sicher, dass 'quantity' ausgegeben wird
+    )

@@ -61,33 +61,22 @@ def read_item(
     lebensmittel_id: int,
     db: Session = Depends(get_db),
 ) -> DBLebensmittel: # Rückgabetyp angepasst
-    # Ruft die korrigierte CRUD-Funktion auf (die jetzt nach ID sucht)
-    db_item = get_lebensmittel(db=db, item_id=lebensmittel_id)
-    if not db_item:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Lebensmittel nicht gefunden",
-        )
-    return db_item
+    # Ruft die korrigierte CRUD-Funktion auf (die jetzt nach ID sucht und 404 wirft)
+    return get_lebensmittel(db=db, item_id=lebensmittel_id)
 
 
-@router.put(
+@router.patch( # Changed from PUT to PATCH for partial updates
     "/{lebensmittel_id}",
     response_model=LebensmittelRead,
     status_code=status.HTTP_200_OK,
 )
-def update_item(
+def update_item( # This function now handles PATCH requests for partial updates
     lebensmittel_id: int,
-    lebensmittel_in: LebensmittelUpdate, # Korrektes Schema für Update
+    lebensmittel_in: LebensmittelUpdate, # Korrektes Schema für Update (partial)
     db: Session = Depends(get_db),
 ) -> DBLebensmittel: # Rückgabetyp angepasst
-    # Holt das Item zuerst
+    # Holt das Item zuerst. get_lebensmittel wirft HTTPException (404), falls nicht gefunden.
     db_item = get_lebensmittel(db=db, item_id=lebensmittel_id)
-    if not db_item:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Lebensmittel nicht gefunden",
-        )
     # Übergibt db_item und lebensmittel_in an die korrigierte CRUD-Funktion
     return update_lebensmittel(db=db, db_item=db_item, lebensmittel_in=lebensmittel_in)
 
@@ -100,13 +89,8 @@ def delete_item(
     lebensmittel_id: int,
     db: Session = Depends(get_db),
 ) -> None: # Rückgabetyp angepasst
-    # Holt das Item zuerst
+    # Holt das Item zuerst. get_lebensmittel wirft HTTPException (404), falls nicht gefunden.
     db_item = get_lebensmittel(db=db, item_id=lebensmittel_id)
-    if not db_item:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Lebensmittel nicht gefunden",
-        )
     # Übergibt db_item an die korrigierte CRUD-Funktion
     delete_lebensmittel(db=db, db_item=db_item)
     # Kein return-Body für 204

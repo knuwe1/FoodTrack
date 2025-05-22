@@ -14,14 +14,30 @@ router = APIRouter()
 @router.post(
     "/register",
     response_model=UserRead,
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_201_CREATED, # Changed to 201 for resource creation
 )
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
-    if get_user_by_email(db, user_in.email):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
-        )
+    try:
+        existing_user = get_user_by_email(db, user_in.email)
+        # If get_user_by_email returns (doesn't raise 404), it means user exists
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+    except HTTPException as e:
+        # Only catch the specific 404 from get_user_by_email
+        if e.status_code == 404 and e.detail == "User not found":
+            # This is the desired case: user does not exist, so proceed to create
+            pass
+        else:
+            # Re-raise any other HTTPException
+            raise
+    
+    # If we are here, it means either get_user_by_email raised 404 (user not found)
+    # or it unexpectedly returned None (which shouldn't happen with new crud logic but good to be safe)
+    # or it found a user but the logic above has a flaw.
+    # Given the new crud.get_user_by_email, we expect a 404 if not found.
     return create_user(db, user_in)
 
 @router.post(

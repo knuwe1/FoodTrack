@@ -8,7 +8,7 @@ class LebensmittelBase(BaseModel):
     name: str
     # Menge wird als Alias "quantity" exponiert
     # Field(...) macht das Feld erforderlich
-    menge: int = Field(..., alias="quantity")
+    menge: int = Field(..., alias="quantity", gt=0) # Menge muss eine positive Ganzzahl sein
     einheit: Optional[str] = None
     ablaufdatum: Optional[date] = None
     kategorie: Optional[str] = None
@@ -27,7 +27,7 @@ class LebensmittelCreate(LebensmittelBase):
 class LebensmittelUpdate(BaseModel):
     # Alle Felder sind optional für ein Partial-Update
     name: Optional[str] = None
-    menge: Optional[int] = Field(None, alias="quantity")
+    menge: Optional[int] = Field(None, alias="quantity", gt=0) # Wenn angegeben, muss Menge eine positive Ganzzahl sein
     einheit: Optional[str] = None
     ablaufdatum: Optional[date] = None
     kategorie: Optional[str] = None

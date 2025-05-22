@@ -58,7 +58,7 @@ def test_read_lebensmittel_by_id(client: TestClient, created_item):
 def test_update_lebensmittel(client: TestClient, created_item):
     item_id = created_item["id"]
     update_payload = {"quantity": 20, "kategorie": "Obst"}
-    response = client.put(f"/api/v1/lebensmittel/{item_id}", json=update_payload)
+    response = client.patch(f"/api/v1/lebensmittel/{item_id}", json=update_payload) # Changed to PATCH
     assert response.status_code == 200
     data = response.json()
     assert data["id"] == item_id
@@ -73,3 +73,42 @@ def test_delete_lebensmittel(client: TestClient, created_item):
 
     response_get = client.get(f"/api/v1/lebensmittel/{item_id}")
     assert response_get.status_code == 404
+
+
+# --- Tests for 404 errors on non-existent items ---
+
+def test_read_non_existent_lebensmittel(client: TestClient):
+    response = client.get("/api/v1/lebensmittel/99999")
+    assert response.status_code == 404
+
+def test_update_non_existent_lebensmittel(client: TestClient):
+    update_payload = {"quantity": 10, "kategorie": "Gemüse"}
+    response = client.patch("/api/v1/lebensmittel/99999", json=update_payload) # Changed to PATCH
+    assert response.status_code == 404
+
+def test_delete_non_existent_lebensmittel(client: TestClient):
+    response = client.delete("/api/v1/lebensmittel/99999")
+    assert response.status_code == 404
+
+
+# --- Tests for input validation errors (quantity > 0) ---
+
+def test_create_lebensmittel_invalid_quantity(client: TestClient):
+    payload_zero = {"name": "TestInvalidZero", "quantity": 0, "einheit": "Stk"}
+    response_zero = client.post("/api/v1/lebensmittel/", json=payload_zero)
+    assert response_zero.status_code == 422
+
+    payload_negative = {"name": "TestInvalidNegative", "quantity": -1, "einheit": "Stk"}
+    response_negative = client.post("/api/v1/lebensmittel/", json=payload_negative)
+    assert response_negative.status_code == 422
+
+def test_update_lebensmittel_invalid_quantity(client: TestClient, created_item):
+    item_id = created_item["id"]
+    
+    update_payload_zero = {"quantity": 0}
+    response_zero = client.patch(f"/api/v1/lebensmittel/{item_id}", json=update_payload_zero) # Changed to PATCH
+    assert response_zero.status_code == 422
+
+    update_payload_negative = {"quantity": -1}
+    response_negative = client.patch(f"/api/v1/lebensmittel/{item_id}", json=update_payload_negative) # Changed to PATCH
+    assert response_negative.status_code == 422

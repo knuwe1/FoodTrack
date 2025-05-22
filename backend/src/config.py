@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    JWT_ALGORITHM: str = "HS256"
 
     # Uvicorn Einstellungen (optional, falls vorher hinzugefügt)
     UVICORN_HOST: str = "0.0.0.0"

@@ -45,7 +45,7 @@ def create_access_token(
     to_encode.update({"exp": expire})
     # Der Algorithmus sollte in den Settings definiert sein oder sicher als Konstante
     # HS256 ist ok, aber vermeide hardcoding, falls möglich
-    algorithm = "HS256"
+    algorithm = settings.JWT_ALGORITHM
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=algorithm)
 
 
@@ -61,9 +61,8 @@ def get_current_user(
     )
     try:
         # Verwende den gleichen Algorithmus wie beim Encoding
-        algorithm = "HS256"
         payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[algorithm] # algorithms als Liste
+            token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM] # algorithms als Liste
         )
         email: str | None = payload.get("sub") # Sicherer Zugriff mit .get()
         if email is None:
@@ -76,10 +75,11 @@ def get_current_user(
     except JWTError:
         raise credentials_exception
 
+    # get_user_by_email will now raise HTTPException if user is not found.
+    # This exception will propagate, and FastAPI will handle it.
+    # The credentials_exception for "user not found" is effectively handled by get_user_by_email.
     user = get_user_by_email(db, email)
-    if user is None:
-        raise credentials_exception
     # Optional: Prüfen, ob der Benutzer aktiv ist
-    # if not user.is_active:
-    #     raise HTTPException(status_code=400, detail="Inactive user")
+    if not user.is_active:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
     return user

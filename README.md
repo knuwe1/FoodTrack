@@ -53,7 +53,7 @@ FoodTrack ist eine modulare Anwendung zur Verwaltung von Lebensmittelbeständen 
     # Optional (hat Standardwert in config.py)
     ACCESS_TOKEN_EXPIRE_MINUTES=30
     ```
-    *Hinweis:* Füge die `.env`-Datei zu deiner `.gitignore`-Datei hinzu, um sensible Daten nicht zu versionieren. Erwäge, eine `.env.example`-Datei ohne sensible Werte zum Repository hinzuzufügen.
+    *Hinweis:* Füge die `.env`-Datei zu deiner `.gitignore`-Datei hinzu, um sensible Daten nicht zu versionieren. Eine Beispieldatei `backend/.env.example` listet die benötigten Umgebungsvariablen auf. Kopiere diese Datei zu `backend/.env` und trage deine eigenen Werte ein.
 
 4.  **Datenbank initialisieren:**
     Das Backend versucht beim Start, die Tabellen zu erstellen (siehe `backend/src/main.py` und `backend/src/db/session.py`). Stelle sicher, dass die Datenbank (z.B. PostgreSQL Server) läuft und zugänglich ist, bevor du die Anwendung startest.
@@ -69,12 +69,12 @@ FoodTrack ist eine modulare Anwendung zur Verwaltung von Lebensmittelbeständen 
 ## API Endpunkte
 Die API-Endpunkte sind über FastAPI's Swagger UI unter `/docs` oder ReDoc unter `/redoc` dokumentiert, wenn die Anwendung läuft. Haupt-Router befinden sich in `backend/src/api/v1/router.py`.
 
-- `/api/v1/lebensmittel/`: CRUD-Operationen für Lebensmittel ()
-- `/api/v1/users/`: Benutzerregistrierung und Login ()
-- `/health`: Einfacher Health Check ()
+- `/api/v1/lebensmittel/`: CRUD-Operationen für Lebensmittel
+- `/api/v1/users/`: Benutzerregistrierung, Login und Abruf von Benutzerdetails
+- `/health`: Einfacher Health Check
 
 ## Tests
-Die Tests verwenden `pytest` und eine In-Memory-SQLite-Datenbank ().
+Die Tests verwenden `pytest` und eine In-Memory-SQLite-Datenbank.
 ```bash
 cd backend
 source venv/bin/activate

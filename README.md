@@ -1,12 +1,12 @@
-# FoodTrack
+# FoodTrack - A Simple Food Tracking Application
 
-FoodTrack ist eine modulare Anwendung zur Verwaltung von Lebensmittelbeständen im Haushalt.
+FoodTrack is a modular application for managing household food inventory.
 
-## Funktionen
-- Erfassung und Verwaltung von Lebensmitteln ([cite: 1])
-- Benutzerregistrierung und Authentifizierung ()
-- Barcode-Scan im Android-Client (falls vorhanden, nicht im Backend-Code ersichtlich) ([cite: 1])
-- Rezeptverwaltung und Einkaufslisten (in Planung) ([cite: 1])
+## Features
+- Food Item Entry and Management ([link to relevant code/documentation])
+- User Registration and Authentication ([link to relevant code/documentation])
+- Barcode Scanning in the Android Client (if applicable, not visible in the backend code)
+- Recipe Management and Shopping Lists (planned)
 
 ## Installation
 

@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.foodtrack.app.data.local.SessionManager
 import com.foodtrack.app.data.model.UserCreate
+import com.foodtrack.app.data.model.UserLogin
 import com.foodtrack.app.data.network.RetrofitClient
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -33,7 +34,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         _authenticationState.value = AuthenticationState.Loading
         viewModelScope.launch {
             try {
-                val response = apiService.loginUser(username = email, password = password)
+                val loginRequest = UserLogin(username = email, password = password)
+                val response = apiService.loginUser(loginRequest)
                 if (response.isSuccessful && response.body() != null) {
                     val token = response.body()!!.access_token
                     sessionManager.saveAuthToken(token)

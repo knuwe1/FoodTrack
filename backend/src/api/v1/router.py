@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from src.api.v1.endpoints import lebensmittel, user
+from src.api.v1.endpoints import lebensmittel, user, transaction
 
 api_router = APIRouter()
 
@@ -14,3 +14,13 @@ api_router.include_router(
     prefix="/users",
     tags=["users"],
 )
+
+api_router.include_router(
+    transaction.router,
+    prefix="/transactions",
+    tags=["transactions"],
+)
+
+
+
+

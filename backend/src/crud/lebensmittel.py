@@ -1,9 +1,11 @@
 # backend/src/crud/lebensmittel.py
 
 from typing import List, Optional
+from datetime import datetime
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from src.models.lebensmittel import Lebensmittel
+from src.models.batch import LebensmittelBatch
 from src.schemas.lebensmittel import LebensmittelCreate, LebensmittelUpdate
 
 # Umbenannt für Klarheit
@@ -19,7 +21,15 @@ def get_lebensmittel_list(db: Session, skip: int = 0, limit: int = 100) -> List[
     Returns:
         A list of Lebensmittel model instances.
     """
-    return db.query(Lebensmittel).offset(skip).limit(limit).all()
+    lebensmittel_list = db.query(Lebensmittel).options(joinedload(Lebensmittel.batches)).offset(skip).limit(limit).all()
+
+    # Berechne echte Mengen aus Batches
+    for lm in lebensmittel_list:
+        lm._batches_loaded = True
+        # Überschreibe die Legacy-Menge mit der echten Batch-Summe
+        lm.menge = sum(batch.menge for batch in lm.batches if batch.menge > 0)
+
+    return lebensmittel_list
 
 # Behält den ursprünglichen Namen bei, da er im Endpoint verwendet wird,
 # stellt aber sicher, dass nach ID gefiltert wird.
@@ -37,14 +47,20 @@ def get_lebensmittel(db: Session, item_id: int) -> Lebensmittel:
     Raises:
         HTTPException: If no Lebensmittel item with the given ID is found (status_code 404).
     """
-    db_lebensmittel = db.query(Lebensmittel).filter(Lebensmittel.id == item_id).first()
+    db_lebensmittel = db.query(Lebensmittel).options(joinedload(Lebensmittel.batches)).filter(Lebensmittel.id == item_id).first()
     if db_lebensmittel is None:
         raise HTTPException(status_code=404, detail="Lebensmittel not found")
+
+    # Berechne echte Menge aus Batches
+    db_lebensmittel._batches_loaded = True
+    db_lebensmittel.menge = sum(batch.menge for batch in db_lebensmittel.batches if batch.menge > 0)
+
     return db_lebensmittel
 
 def create_lebensmittel(db: Session, lebensmittel_in: LebensmittelCreate) -> Lebensmittel:
     """
     Creates a new Lebensmittel item in the database.
+    If menge > 0, creates an initial batch with the specified quantity and expiration date.
 
     Args:
         db: The database session.
@@ -53,18 +69,84 @@ def create_lebensmittel(db: Session, lebensmittel_in: LebensmittelCreate) -> Leb
     Returns:
         The newly created Lebensmittel model instance.
     """
-    # Verwende die korrekten Attributnamen aus dem Schema
+    # Erstelle Lebensmittel ohne initiale Menge (wird durch Batches berechnet)
     db_item = Lebensmittel(
         name=lebensmittel_in.name,
-        menge=lebensmittel_in.menge, # Nicht lebensmittel_in.quantity
+        menge=0,  # Wird durch Batches berechnet
         einheit=lebensmittel_in.einheit,
         ablaufdatum=lebensmittel_in.ablaufdatum,
         kategorie=lebensmittel_in.kategorie,
+        ean_code=lebensmittel_in.ean_code,
+        mindestmenge=lebensmittel_in.mindestmenge or 0,
     )
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
+
+    # Erstelle initiale Batch, wenn Menge > 0
+    if lebensmittel_in.menge and lebensmittel_in.menge > 0:
+        initial_batch = LebensmittelBatch(
+            lebensmittel_id=db_item.id,
+            menge=lebensmittel_in.menge,
+            ablaufdatum=lebensmittel_in.ablaufdatum
+        )
+        db.add(initial_batch)
+        db.commit()
+
+        # Aktualisiere die berechnete Menge
+        db.refresh(db_item)
+        db_item.menge = lebensmittel_in.menge
+
     return db_item
+
+def get_lebensmittel_by_ean(db: Session, ean_code: str) -> Optional[Lebensmittel]:
+    """
+    Findet ein Lebensmittel anhand des EAN-Codes.
+
+    Args:
+        db: The database session.
+        ean_code: Der EAN-Code zum Suchen.
+
+    Returns:
+        Das Lebensmittel-Objekt oder None wenn nicht gefunden.
+    """
+    if not ean_code:
+        return None
+
+    db_lebensmittel = db.query(Lebensmittel).options(joinedload(Lebensmittel.batches)).filter(
+        Lebensmittel.ean_code == ean_code
+    ).first()
+
+    if db_lebensmittel:
+        # Berechne echte Menge aus Batches
+        db_lebensmittel._batches_loaded = True
+        db_lebensmittel.menge = sum(batch.menge for batch in db_lebensmittel.batches if batch.menge > 0)
+
+    return db_lebensmittel
+
+def get_lebensmittel_below_minimum(db: Session) -> List[Lebensmittel]:
+    """
+    Findet alle Lebensmittel, die unter ihrer Mindestmenge liegen.
+
+    Args:
+        db: The database session.
+
+    Returns:
+        Liste der Lebensmittel unter Mindestmenge.
+    """
+    lebensmittel_list = db.query(Lebensmittel).options(joinedload(Lebensmittel.batches)).filter(
+        Lebensmittel.mindestmenge > 0
+    ).all()
+
+    # Berechne echte Mengen und filtere
+    result = []
+    for item in lebensmittel_list:
+        item._batches_loaded = True
+        item.menge = sum(batch.menge for batch in item.batches if batch.menge > 0)
+        if item.is_below_minimum:
+            result.append(item)
+
+    return result
 
 # Akzeptiert db_item direkt und verwendet LebensmittelUpdate
 def update_lebensmittel(

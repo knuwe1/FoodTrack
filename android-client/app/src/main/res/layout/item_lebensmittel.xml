@@ -22,11 +22,11 @@
         tools:text="Menge: 5 Stück" />
 
     <TextView
-        android:id="@+id/tvItemMhd"
+        android:id="@+id/tvItemAblaufdatum"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="14sp"
-        tools:text="MHD: 2024-12-31" />
+        tools:text="Ablaufdatum: 2024-12-31" />
 
     <TextView
         android:id="@+id/tvItemCategory"
@@ -35,11 +35,31 @@
         android:textSize="14sp"
         tools:text="Kategorie: Obst" />
 
-    <TextView
-        android:id="@+id/tvItemLagerort"
+    <!-- Quick Actions -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        tools:text="Lagerort: Kühlschrank" />
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:gravity="end">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConsume"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Verbrauchen"
+            android:textColor="@android:color/holo_orange_dark"
+            android:layout_marginEnd="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPurchase"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Einkaufen"
+            android:textColor="@android:color/holo_green_dark" />
+
+    </LinearLayout>
 
 </LinearLayout>

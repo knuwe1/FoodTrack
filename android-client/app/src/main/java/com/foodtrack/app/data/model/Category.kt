@@ -1,0 +1,6 @@
+package com.foodtrack.app.data.model
+
+data class Category(
+    val id: Int,
+    val name: String
+)

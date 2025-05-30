@@ -1,12 +1,17 @@
 # backend/src/main.py
 
 import uvicorn
+import logging
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 from .db.session import init_db
 from .api.v1.router import api_router
 from .config import settings
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager

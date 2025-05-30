@@ -6,12 +6,13 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class LebensmittelBase(BaseModel):
     name: str
-    # Menge wird als Alias "quantity" exponiert
-    # Field(...) macht das Feld erforderlich
-    menge: int = Field(..., alias="quantity", gt=0) # Menge muss eine positive Ganzzahl sein
+    # Menge wird als Alias "quantity" exponiert und ist optional
+    menge: Optional[int] = Field(None, alias="quantity", ge=0) # Menge kann null sein oder >= 0
     einheit: Optional[str] = None
     ablaufdatum: Optional[date] = None
     kategorie: Optional[str] = None
+    ean_code: Optional[str] = None
+    mindestmenge: Optional[int] = Field(None, ge=0)  # Mindestmenge >= 0
 
     # Pydantic v2 Konfiguration
     model_config = ConfigDict(
@@ -27,10 +28,12 @@ class LebensmittelCreate(LebensmittelBase):
 class LebensmittelUpdate(BaseModel):
     # Alle Felder sind optional für ein Partial-Update
     name: Optional[str] = None
-    menge: Optional[int] = Field(None, alias="quantity", gt=0) # Wenn angegeben, muss Menge eine positive Ganzzahl sein
+    menge: Optional[int] = Field(None, alias="quantity", ge=0) # Wenn angegeben, muss Menge >= 0 sein
     einheit: Optional[str] = None
     ablaufdatum: Optional[date] = None
     kategorie: Optional[str] = None
+    ean_code: Optional[str] = None
+    mindestmenge: Optional[int] = Field(None, ge=0)  # Mindestmenge >= 0
 
     # Separate Konfiguration für Update, falls benötigt
     model_config = ConfigDict(

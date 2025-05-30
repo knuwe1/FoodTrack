@@ -1,0 +1,28 @@
+<?php
+// FoodTrack Local Configuration Template
+// Copy this file to config.local.php and fill in your actual credentials
+// NEVER commit config.local.php to version control!
+
+return [
+    'database' => [
+        'host' => 'localhost',
+        'name' => 'your_database_name',
+        'user' => 'your_username',
+        'pass' => 'your_password',
+        'charset' => 'utf8mb4'
+    ],
+    
+    'app' => [
+        'name' => 'FoodTrack API',
+        'version' => '1.0.0',
+        'debug' => false,  // Set to true for development
+        'timezone' => 'Europe/Berlin'
+    ],
+    
+    'security' => [
+        'token_expiry' => 86400,  // 24 hours in seconds
+        'password_min_length' => 3,
+        'jwt_secret' => 'your-super-secret-jwt-key-change-this'
+    ]
+];
+?>

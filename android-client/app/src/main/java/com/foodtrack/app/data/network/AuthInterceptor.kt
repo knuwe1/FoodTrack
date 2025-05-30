@@ -14,7 +14,7 @@ class AuthInterceptor(private val sessionManager: SessionManager) : Interceptor 
         val path = request.url.encodedPath
         val method = request.method
 
-        val isLoginRequest = method == "POST" && path.endsWith("/api/v1/users/login")
+        val isLoginRequest = method == "POST" && (path.endsWith("/api/v1/users/login") || path.endsWith("/api/v1/users/login-json"))
         val isRegisterRequest = method == "POST" && path.endsWith("/api/v1/users/") && !path.contains("login") // Ensure it's not the login path
 
         if (token != null && !isLoginRequest && !isRegisterRequest) {

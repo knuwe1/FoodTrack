@@ -27,27 +27,40 @@
 5. **SQL-Tab** auswählen
 6. **Inhalt von `database/setup.sql`** einfügen und ausführen
 
-### **Schritt 3: .env Konfiguration erstellen**
+### **Schritt 3: Sichere .env Konfiguration erstellen**
 
-#### **Methode A: Setup-Script (Empfohlen)**
-1. **Browser öffnen:** `https://DEINE-DOMAIN.de/setup.php`
-2. **Formular ausfüllen** mit deinen 1blu Datenbank-Credentials
-3. **Setup abschließen** und `setup.php` löschen
-
-#### **Methode B: Manuell**
-1. **`.env.example`** zu **`.env`** kopieren:
-   ```bash
-   cp .env.example .env
+#### **Methode A: Sichere Konfiguration (Empfohlen)**
+1. **Sicherheitsordner erstellen** auf gleicher Ebene wie `www/`:
    ```
-2. **`.env`** bearbeiten:
+   /
+   ├── www/
+   │   └── foodtrack/         # PHP-Backend Verzeichnis
+   │       ├── index.php
+   │       └── ...
+   └── foodtrack_sec/         # Sicherheitsordner (erstellen)
+       └── .env               # Sichere Konfiguration
+   ```
+
+2. **`.env` Datei erstellen** in `foodtrack_sec/`:
    ```env
-   DB_HOST=localhost
+   DB_HOST=mysql37.1blu.de
    DB_NAME=db123456_foodtrack
    DB_USER=db123456_user
    DB_PASS="MeinSicheresPasswort123!"
    JWT_SECRET=AbCdEf123456789RandomSecretKey
    APP_DEBUG=false
    ```
+
+3. **Berechtigung setzen:**
+   ```bash
+   chmod 600 ../foodtrack_sec/.env
+   ```
+
+#### **Methode B: Setup-Script (weniger sicher)**
+1. **Browser öffnen:** `https://DEINE-DOMAIN.de/setup.php`
+2. **Formular ausfüllen** mit deinen 1blu Datenbank-Credentials
+3. **Setup abschließen** und `setup.php` löschen
+4. **⚠️ WICHTIG:** .env Datei in sicheren Ordner verschieben!
 
 #### **Sicheren JWT-Secret generieren:**
 ```bash

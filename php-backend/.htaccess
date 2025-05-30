@@ -1,5 +1,40 @@
 RewriteEngine On
 
+# SECURITY: Protect sensitive files and directories
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "config.local.php">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "setup.php">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "secure_env_template.txt">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Protect all dot files and backup files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "\.(bak|backup|old|tmp|log)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Prevent directory browsing
+Options -Indexes
+
 # Handle CORS preflight requests
 RewriteCond %{REQUEST_METHOD} OPTIONS
 RewriteRule ^(.*)$ index.php [QSA,L]

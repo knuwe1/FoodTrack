@@ -1,8 +1,8 @@
 package com.foodtrack.app.utils
 
 object Constants {
-    // Production URL - 1blu Hosting (HTTP due to SSL certificate mismatch)
-    const val BASE_URL = "http://foodtrack.knutwehr.de/"
+    // Production URL - 1blu Hosting (HTTPS with valid SSL certificate)
+    const val BASE_URL = "https://foodtrack.knutwehr.de/"
 
     // Development URLs (for testing):
     const val LOCAL_URL = "http://192.168.178.58:8000/"

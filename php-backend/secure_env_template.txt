@@ -1,0 +1,22 @@
+# FoodTrack Secure Environment Configuration
+# This file should be placed in: ../foodtrack_sec/.env
+# (outside the web root for maximum security)
+
+# Database Configuration (Update with your 1blu credentials)
+DB_HOST=mysql37.1blu.de
+DB_NAME=db6632x3717241
+DB_USER=s6632_3717241
+DB_PASS="CHANGE_THIS_PASSWORD_IMMEDIATELY"
+
+# Security (Generate a secure random key)
+JWT_SECRET=your-super-secure-random-jwt-secret-key-here
+
+# Application Settings
+APP_DEBUG=false
+
+# Instructions:
+# 1. Create folder: ../foodtrack_sec/ (same level as www/)
+# 2. Copy this file to: ../foodtrack_sec/.env
+# 3. Update DB_PASS with your NEW database password
+# 4. Generate secure JWT_SECRET (use: openssl rand -base64 32)
+# 5. Delete this template file from web directory

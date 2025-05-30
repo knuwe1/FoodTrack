@@ -60,7 +60,21 @@ function loadConfig() {
     ];
 
     // 1. Try to load from .env file (primary method)
-    if (loadEnvFile(__DIR__ . '/.env')) {
+    // First try secure location outside web root
+    // Account for backend being in www/foodtrack/ subdirectory
+    $secureEnvPath = dirname(dirname(__DIR__)) . '/foodtrack_sec/.env';
+    $localEnvPath = __DIR__ . '/.env';
+
+    if (loadEnvFile($secureEnvPath)) {
+        $config['database']['host'] = getenv('DB_HOST') ?: $config['database']['host'];
+        $config['database']['name'] = getenv('DB_NAME') ?: '';
+        $config['database']['user'] = getenv('DB_USER') ?: '';
+        $config['database']['pass'] = getenv('DB_PASS') ?: '';
+        $config['security']['jwt_secret'] = getenv('JWT_SECRET') ?: $config['security']['jwt_secret'];
+        $config['app']['debug'] = getenv('APP_DEBUG') === 'true';
+    }
+    // Fallback to local .env (for development/migration)
+    elseif (loadEnvFile($localEnvPath)) {
         $config['database']['host'] = getenv('DB_HOST') ?: $config['database']['host'];
         $config['database']['name'] = getenv('DB_NAME') ?: '';
         $config['database']['user'] = getenv('DB_USER') ?: '';

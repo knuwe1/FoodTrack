@@ -1,0 +1,30 @@
+# Security - Never commit these files!
+.env
+config.local.php
+
+# Setup script (delete after setup)
+setup.php
+
+# Logs
+*.log
+error_log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+cache/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup

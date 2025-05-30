@@ -43,47 +43,48 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <EditText
-            android:id="@+id/etKategorie"
+        <Spinner
+            android:id="@+id/spinnerKategorie"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Kategorie (z.B. Obst, Gemüse)"
-            android:inputType="textCapWords"
             app:layout_constraintTop_toBottomOf="@id/etEinheit"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <EditText
-            android:id="@+id/etKaufdatum"
+            android:id="@+id/etAblaufdatum"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Kaufdatum (YYYY-MM-DD)"
-            android:inputType="date"
-            app:layout_constraintTop_toBottomOf="@id/etKategorie"
+            android:hint="Ablaufdatum (YYYY-MM-DD)"
+            android:inputType="none"
+            android:focusable="false"
+            app:layout_constraintTop_toBottomOf="@id/spinnerKategorie"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <!-- EAN Code -->
         <EditText
-            android:id="@+id/etMhd"
+            android:id="@+id/etEanCode"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="MHD (YYYY-MM-DD)"
-            android:inputType="date"
-            app:layout_constraintTop_toBottomOf="@id/etKaufdatum"
+            android:hint="EAN-Code (optional)"
+            android:inputType="number"
+            app:layout_constraintTop_toBottomOf="@id/etAblaufdatum"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <!-- Mindestmenge -->
         <EditText
-            android:id="@+id/etLagerort"
+            android:id="@+id/etMindestmenge"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Lagerort (z.B. Kühlschrank)"
-            android:inputType="textCapWords"
-            app:layout_constraintTop_toBottomOf="@id/etMhd"
+            android:hint="Mindestmenge (optional)"
+            android:inputType="number"
+            app:layout_constraintTop_toBottomOf="@id/etEanCode"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -93,7 +94,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Speichern"
-            app:layout_constraintTop_toBottomOf="@id/etLagerort"
+            app:layout_constraintTop_toBottomOf="@id/etMindestmenge"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 

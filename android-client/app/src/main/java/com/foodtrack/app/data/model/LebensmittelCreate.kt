@@ -4,10 +4,10 @@ import com.google.gson.annotations.SerializedName
 
 data class LebensmittelCreate(
     @SerializedName("name") val name: String,
-    @SerializedName("menge") val menge: Double?,
+    @SerializedName("quantity") val quantity: Int?, // Backend erwartet "quantity" als Alias
     @SerializedName("einheit") val einheit: String?,
     @SerializedName("kategorie") val kategorie: String?,
-    @SerializedName("kaufdatum") val kaufdatum: String?, // "YYYY-MM-DD"
-    @SerializedName("mhd") val mhd: String?, // "YYYY-MM-DD"
-    @SerializedName("lagerort") val lagerort: String?
+    @SerializedName("ablaufdatum") val ablaufdatum: String?, // "YYYY-MM-DD"
+    @SerializedName("ean_code") val eanCode: String?,
+    @SerializedName("mindestmenge") val mindestmenge: Int?
 )

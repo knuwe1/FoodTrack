@@ -1,81 +1,277 @@
-# FoodTrack
+# 🍎 FoodTrack - Smart Food Inventory Management
 
-FoodTrack ist eine modulare Anwendung zur Verwaltung von Lebensmittelbeständen im Haushalt.
+[![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](android-client/)
+[![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)](php-backend/)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](backend/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-## Funktionen
-- Erfassung und Verwaltung von Lebensmitteln ([cite: 1])
-- Benutzerregistrierung und Authentifizierung ()
-- Barcode-Scan im Android-Client (falls vorhanden, nicht im Backend-Code ersichtlich) ([cite: 1])
-- Rezeptverwaltung und Einkaufslisten (in Planung) ([cite: 1])
+A comprehensive food inventory management system with intelligent barcode scanning, expiration tracking, and smart consumption management. Never waste food again!
 
-## Installation
+## ✨ Features
 
-### Voraussetzungen
-- Python 3.x
-- `python3-venv`
+### 📱 **Android App**
+- **🏷️ EAN Barcode Scanning** with OpenFoodFacts integration
+- **📅 Smart Expiration Tracking** with FIFO consumption
+- **⚠️ Low Stock Warnings** with configurable minimum quantities
+- **📊 Batch Management** for different expiration dates
+- **🗂️ Category Management** with automatic categorization
+- **📈 Transaction History** with purchase/consumption tracking
+- **🎯 Modern Material Design** with intuitive navigation
 
-### Backend (Python + FastAPI)
+### 🌐 **Backend Options**
+- **🐍 Python/FastAPI Backend** - Full-featured development server
+- **🌍 PHP Backend** - Production-ready for shared hosting (1blu, etc.)
+- **🔐 Secure Configuration** - Environment-based credentials
+- **📊 RESTful API** - Complete CRUD operations
+- **🔄 Real-time Sync** - Instant data synchronization
 
-1.  **Repository klonen:**
-    ```bash
-    git clone <repository-url>
-    cd FoodTrack-main
-    ```
+### 🧠 **Smart Features**
+- **🤖 Auto-fill Product Data** - Name, brand, quantity, unit, category from barcode
+- **📦 Batch System** - Track items with different expiration dates separately
+- **🔄 FIFO Consumption** - Automatically use oldest items first
+- **⚡ Instant Warnings** - Visual alerts for expired/low-stock items
+- **📱 Offline-Ready** - Local data caching for uninterrupted use
 
-2.  **Setup-Skript ausführen (empfohlen):**
-    Das Skript erstellt ein Virtual Environment und installiert die Abhängigkeiten.
-    ```bash
-    bash scripts/setup.sh
-    ```
-    Oder manuell:
-    ```bash
-    cd backend
-    python3 -m venv venv
-    source venv/bin/activate  # Auf Windows: venv\Scripts\activate
-    pip install --upgrade pip
-    pip install -r requirements.txt
-    ```
+## 🚀 Quick Start
 
-3.  **Umgebungsvariablen konfigurieren:**
-    Erstelle eine Datei `.env` im Verzeichnis `FoodTrack-main/backend/` mit folgendem Inhalt (passe die Werte an):
-    ```dotenv
-    # Beispiel .env Datei
-    # Siehe backend/src/config.py für alle benötigten Variablen
-
-    # Erforderlich für Datenbankverbindung (Beispiel für PostgreSQL)
-    DATABASE_URL="postgresql://user:password@host:port/database_name"
-    # Beispiel für SQLite (einfacher für lokale Entwicklung):
-    # DATABASE_URL="sqlite:///./foodtrack.db"
-
-    # Erforderlich für JWT Token
-    SECRET_KEY="dein_sehr_geheimer_schluessel_hier_aendern" # Generiere einen sicheren Schlüssel!
-
-    # Optional (hat Standardwert in config.py)
-    ACCESS_TOKEN_EXPIRE_MINUTES=30
-    ```
-    *Hinweis:* Füge die `.env`-Datei zu deiner `.gitignore`-Datei hinzu, um sensible Daten nicht zu versionieren. Eine Beispieldatei `backend/.env.example` listet die benötigten Umgebungsvariablen auf. Kopiere diese Datei zu `backend/.env` und trage deine eigenen Werte ein.
-
-4.  **Datenbank initialisieren:**
-    Das Backend versucht beim Start, die Tabellen zu erstellen (siehe `backend/src/main.py` und `backend/src/db/session.py`). Stelle sicher, dass die Datenbank (z.B. PostgreSQL Server) läuft und zugänglich ist, bevor du die Anwendung startest.
-
-5.  **Anwendung starten:**
-    Stelle sicher, dass das Virtual Environment aktiviert ist (`source backend/venv/bin/activate`).
-    ```bash
-    cd backend
-    uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
-    ```
-    Die API ist dann unter `http://localhost:8000` verfügbar, die interaktive Dokumentation (Swagger UI) unter `http://localhost:8000/docs`.
-
-## API Endpunkte
-Die API-Endpunkte sind über FastAPI's Swagger UI unter `/docs` oder ReDoc unter `/redoc` dokumentiert, wenn die Anwendung läuft. Haupt-Router befinden sich in `backend/src/api/v1/router.py`.
-
-- `/api/v1/lebensmittel/`: CRUD-Operationen für Lebensmittel
-- `/api/v1/users/`: Benutzerregistrierung, Login und Abruf von Benutzerdetails
-- `/health`: Einfacher Health Check
-
-## Tests
-Die Tests verwenden `pytest` und eine In-Memory-SQLite-Datenbank.
+### 📱 **Android App Setup**
 ```bash
-cd backend
-source venv/bin/activate
+# Clone repository
+git clone https://github.com/yourusername/FoodTrack.git
+cd FoodTrack/android-client
+
+# Open in Android Studio and build
+# Or use command line:
+./gradlew assembleDebug
+adb install app/build/outputs/apk/debug/app-debug.apk
+```
+
+### 🌍 **PHP Backend (Production)**
+```bash
+# 1. Upload php-backend/ files to your hosting
+# 2. Create MySQL database
+# 3. Run database/setup.sql
+# 4. Configure credentials:
+
+# Option A: .env file
+cp .env.example .env
+# Edit .env with your database credentials
+
+# Option B: Web setup (recommended)
+# Visit: https://yourdomain.com/setup.php
+# Follow the setup wizard
+# Delete setup.php after completion
+```
+
+### 🐍 **Python Backend (Development)**
+```bash
+cd backend/
+pip install -r requirements.txt
+uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+## 📁 Project Structure
+
+```
+FoodTrack/
+├── 📱 android-client/          # Android app (Kotlin)
+│   ├── app/src/main/java/      # Source code
+│   ├── app/src/main/res/       # Resources & layouts
+│   └── build.gradle            # Dependencies
+├── 🌍 php-backend/             # PHP backend (Production)
+│   ├── endpoints/              # API endpoints
+│   ├── database/               # SQL setup scripts
+│   ├── .env.example           # Configuration template
+│   └── README.md              # PHP setup guide
+├── 🐍 backend/                 # Python backend (Development)
+│   ├── src/                   # FastAPI source
+│   ├── requirements.txt       # Python dependencies
+│   └── README.md              # Python setup guide
+└── 📚 docs/                   # Documentation
+```
+
+## 🔧 Configuration
+
+### 🔐 **Secure Credentials**
+
+**PHP Backend (.env):**
+```env
+DB_HOST=localhost
+DB_NAME=your_database_name
+DB_USER=your_username
+DB_PASS="your_secure_password"
+JWT_SECRET=your-random-secret-key
+APP_DEBUG=false
+```
+
+**Android App:**
+```kotlin
+// Update Constants.kt
+const val BASE_URL = "https://yourdomain.com/"
+```
+
+### 🔑 **Default Login**
+- **Email:** `admin@foodtrack.com`
+- **Password:** `admin`
+
+## 📊 API Documentation
+
+### 🔐 **Authentication**
+```http
+POST /api/v1/users/login-json
+Content-Type: application/json
+
+{
+  "username": "admin@foodtrack.com",
+  "password": "admin"
+}
+```
+
+### 🍎 **Food Items**
+```http
+# Get all items
+GET /api/v1/lebensmittel/
+
+# Create item
+POST /api/v1/lebensmittel/
+{
+  "name": "Äpfel",
+  "quantity": 5,
+  "einheit": "Stück",
+  "kategorie": "Obst",
+  "ean_code": "1234567890123",
+  "mindestmenge": 3
+}
+
+# Search by EAN
+GET /api/v1/lebensmittel/ean/1234567890123
+
+# Low stock warnings
+GET /api/v1/lebensmittel/warnings/low-stock
+```
+
+### 📦 **Transactions**
+```http
+# Record purchase
+POST /api/v1/transactions/
+{
+  "lebensmittel_id": 1,
+  "transaction_type": "purchase",
+  "quantity_change": 10,
+  "reason": "Weekly shopping"
+}
+
+# Record consumption
+POST /api/v1/transactions/
+{
+  "lebensmittel_id": 1,
+  "transaction_type": "consumption",
+  "quantity_change": 2,
+  "reason": "Breakfast"
+}
+```
+
+## 🎯 Usage Examples
+
+### 📱 **Mobile Workflow**
+1. **📷 Scan barcode** → Auto-fills product data
+2. **📝 Adjust details** → Quantity, expiration date
+3. **💾 Save item** → Added to inventory
+4. **🔄 Track usage** → Purchase/consumption buttons
+5. **⚠️ Get alerts** → Low stock notifications
+
+### 🌐 **Web Integration**
+```javascript
+// Example API usage
+const response = await fetch('https://yourdomain.com/api/v1/lebensmittel/', {
+  headers: {
+    'Authorization': 'Bearer ' + token,
+    'Content-Type': 'application/json'
+  }
+});
+const items = await response.json();
+```
+
+## 🛠️ Development
+
+### 🔧 **Prerequisites**
+- **Android Studio** 4.0+ (for Android app)
+- **PHP 7.4+** with MySQL (for production backend)
+- **Python 3.8+** (for development backend)
+- **Git** for version control
+
+### 🚀 **Development Setup**
+```bash
+# 1. Clone repository
+git clone https://github.com/yourusername/FoodTrack.git
+cd FoodTrack
+
+# 2. Start Python backend
+cd backend/
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements.txt
+uvicorn src.main:app --reload
+
+# 3. Open Android app in Android Studio
+# File → Open → android-client/
+
+# 4. Update API URL in Constants.kt
+# const val BASE_URL = "http://10.0.2.2:8000/"  # For emulator
+```
+
+### 🧪 **Testing**
+```bash
+# Backend tests
+cd backend/
 pytest
+
+# Android tests
+cd android-client/
+./gradlew test
+```
+
+## 🚀 Deployment
+
+### 🌍 **Production Deployment (PHP)**
+1. **Upload files** to your hosting provider
+2. **Create MySQL database** via hosting control panel
+3. **Run setup wizard** at `https://yourdomain.com/setup.php`
+4. **Update Android app** with production URL
+5. **Delete setup.php** for security
+
+### 🐳 **Docker Deployment (Python)**
+```bash
+# Build and run with Docker
+docker build -t foodtrack-backend backend/
+docker run -p 8000:8000 foodtrack-backend
+```
+
+## 🤝 Contributing
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **OpenFoodFacts** - Product database API
+- **Material Design** - UI/UX guidelines
+- **ZXing** - Barcode scanning library
+- **Retrofit** - HTTP client for Android
+
+## 📞 Support
+
+- **📧 Email:** support@foodtrack.com
+- **🐛 Issues:** [GitHub Issues](https://github.com/yourusername/FoodTrack/issues)
+- **📖 Wiki:** [Project Wiki](https://github.com/yourusername/FoodTrack/wiki)
+
+---
+
+**Made with ❤️ for better food management**

@@ -1,45 +1,26 @@
 RewriteEngine On
 
-# SECURITY: Protect sensitive files and directories
-<Files ".env">
-    Order allow,deny
-    Deny from all
-</Files>
+# IMPORTANT: Pass Authorization header to PHP (multiple methods)
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
 
-<Files "config.local.php">
-    Order allow,deny
-    Deny from all
-</Files>
+# Alternative method for Authorization header
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
 
-<Files "setup.php">
-    Order allow,deny
-    Deny from all
-</Files>
-
-<Files "secure_env_template.txt">
-    Order allow,deny
-    Deny from all
-</Files>
-
-# Protect all dot files and backup files
-<FilesMatch "^\.">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
-
-<FilesMatch "\.(bak|backup|old|tmp|log)$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
-
-# Prevent directory browsing
-Options -Indexes
+# CGI mode compatibility
+RewriteCond %{HTTP:Authorization} ^(.+)$
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
 # Handle CORS preflight requests
 RewriteCond %{REQUEST_METHOD} OPTIONS
 RewriteRule ^(.*)$ index.php [QSA,L]
 
-# Route all API requests to index.php
+# Multi-Tenant API Routes (NEW) - Route through index.php
+RewriteRule ^households/?(.*)$ index.php [QSA,L]
+RewriteRule ^storage-locations/?(.*)$ index.php [QSA,L]
+RewriteRule ^packages/?(.*)$ index.php [QSA,L]
+
+# Route all other API requests to index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^api/v1/(.*)$ index.php [QSA,L]

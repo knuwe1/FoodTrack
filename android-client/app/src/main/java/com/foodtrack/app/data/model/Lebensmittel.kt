@@ -10,7 +10,15 @@ data class Lebensmittel(
     @SerializedName("kategorie") val kategorie: String?,
     @SerializedName("ablaufdatum") val ablaufdatum: String?, // Format "YYYY-MM-DD"
     @SerializedName("ean_code") val eanCode: String?,
-    @SerializedName("mindestmenge") val mindestmenge: Int?
+    @SerializedName("mindestmenge") val mindestmenge: Int?,
+
+    // Neue Multi-Tenant Felder
+    @SerializedName("household_id") val householdId: Int,
+    @SerializedName("storage_location_id") val storageLocationId: Int? = null,
+    @SerializedName("package_id") val packageId: Int? = null,
+    @SerializedName("package_count") val packageCount: Int = 1, // Anzahl der Gebinde
+    @SerializedName("created_by") val createdBy: Int,
+    @SerializedName("updated_by") val updatedBy: Int? = null
 ) {
     /**
      * Prüft ob der Bestand unter der Mindestmenge liegt
@@ -27,6 +35,30 @@ data class Lebensmittel(
             mindestmenge!! - (menge ?: 0)
         } else {
             0
+        }
+    }
+
+    /**
+     * Berechnet die Gesamtmenge basierend auf Gebinden
+     * Wenn packageId gesetzt ist, wird packageCount * fillAmount verwendet
+     */
+    fun getTotalQuantityFromPackages(packageInfo: Package?): Double? {
+        return if (packageInfo != null && packageCount > 0) {
+            packageCount * packageInfo.fillAmount
+        } else {
+            menge?.toDouble()
+        }
+    }
+
+    /**
+     * Formatiert die Mengenangabe mit Gebinde-Information
+     */
+    fun getFormattedQuantityWithPackages(packageInfo: Package?): String {
+        return if (packageInfo != null && packageCount > 0) {
+            val totalAmount = getTotalQuantityFromPackages(packageInfo)
+            "$packageCount x ${packageInfo.name} (${totalAmount?.let { "%.1f".format(it) }} ${packageInfo.fillUnit})"
+        } else {
+            "${menge ?: 0} ${einheit ?: ""}"
         }
     }
 }

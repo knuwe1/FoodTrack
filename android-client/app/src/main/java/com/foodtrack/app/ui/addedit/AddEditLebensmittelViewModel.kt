@@ -8,6 +8,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.foodtrack.app.data.model.Lebensmittel
 import com.foodtrack.app.data.model.LebensmittelCreate
+import com.foodtrack.app.data.model.StorageLocation
+import com.foodtrack.app.data.model.Package as FoodPackage
 import com.foodtrack.app.data.network.RetrofitClient
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -35,6 +37,18 @@ class AddEditLebensmittelViewModel(application: Application) : AndroidViewModel(
 
     private val _deleteResult = MutableLiveData<Boolean?>()
     val deleteResult: LiveData<Boolean?> = _deleteResult
+
+    // Multi-Tenant data
+    private val _storageLocations = MutableLiveData<List<StorageLocation>>()
+    val storageLocations: LiveData<List<StorageLocation>> = _storageLocations
+
+    private val _packages = MutableLiveData<List<FoodPackage>>()
+    val packages: LiveData<List<FoodPackage>> = _packages
+
+    init {
+        // Load multi-tenant data when ViewModel is created
+        loadMultiTenantData()
+    }
 
     fun fetchLebensmittelDetails(id: Int) {
         _isLoading.value = true
@@ -67,7 +81,10 @@ class AddEditLebensmittelViewModel(application: Application) : AndroidViewModel(
         kategorie: String,
         ablaufdatum: String,
         eanCode: String,
-        mindestmengeStr: String
+        mindestmengeStr: String,
+        storageLocationId: Int? = null,
+        packageId: Int? = null,
+        packageCount: Int = 1
     ) {
         Log.d(TAG, "Starting saveLebensmittel")
         Log.d(TAG, "ID=$id, name=$name, menge=$mengeStr, kategorie=$kategorie")
@@ -107,7 +124,10 @@ class AddEditLebensmittelViewModel(application: Application) : AndroidViewModel(
             kategorie = kategorie.ifBlank { null },
             ablaufdatum = ablaufdatum.ifBlank { null },
             eanCode = eanCode.ifBlank { null },
-            mindestmenge = mindestmenge
+            mindestmenge = mindestmenge,
+            storageLocationId = storageLocationId,
+            packageId = packageId,
+            packageCount = packageCount
         )
 
         Log.d(TAG, "LebensmittelCreate: name=$name, quantity=$menge, einheit=${einheit.ifBlank { null }}, kategorie=${kategorie.ifBlank { null }}, ablaufdatum=${ablaufdatum.ifBlank { null }}")
@@ -195,5 +215,35 @@ class AddEditLebensmittelViewModel(application: Application) : AndroidViewModel(
 
     fun clearDeleteResult() {
         _deleteResult.value = null // Reset
+    }
+
+    // Multi-Tenant Functions
+    private fun loadMultiTenantData() {
+        viewModelScope.launch {
+            try {
+                // Load storage locations
+                val locationsResponse = apiService.getStorageLocations()
+                if (locationsResponse.isSuccessful) {
+                    _storageLocations.value = locationsResponse.body() ?: emptyList()
+                }
+
+                // Load packages
+                val packagesResponse = apiService.getPackages()
+                if (packagesResponse.isSuccessful) {
+                    _packages.value = packagesResponse.body() ?: emptyList()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to load multi-tenant data: ${e.message}")
+                // Don't show error to user for this, just log it
+            }
+        }
+    }
+
+    fun getStorageLocationById(id: Int): StorageLocation? {
+        return _storageLocations.value?.find { it.id == id }
+    }
+
+    fun getPackageById(id: Int): FoodPackage? {
+        return _packages.value?.find { it.id == id }
     }
 }

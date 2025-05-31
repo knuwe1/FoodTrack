@@ -1,19 +1,30 @@
 package com.foodtrack.app.ui.categories
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.MenuItem
-import android.widget.Button
-import android.widget.EditText
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.setPadding
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.foodtrack.app.R
 import com.foodtrack.app.data.local.CategoryManager
 import com.foodtrack.app.data.model.Category
+import com.foodtrack.app.data.model.CategoryWithCount
+import com.foodtrack.app.ui.lebensmittel.LebensmittelViewModel
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
 class CategoryManagementActivity : AppCompatActivity() {
 
@@ -22,20 +33,31 @@ class CategoryManagementActivity : AppCompatActivity() {
     }
 
     private lateinit var categoryManager: CategoryManager
-    private lateinit var categoriesContainer: LinearLayout
-    private lateinit var btnAddCategory: Button
+    private val lebensmittelViewModel: LebensmittelViewModel by viewModels()
+    private lateinit var toolbar: MaterialToolbar
+    private lateinit var recyclerViewCategories: RecyclerView
+    private lateinit var categoryAdapter: CategoryAdapter
+    private lateinit var tvCategoryCount: TextView
+    private lateinit var emptyStateLayout: LinearLayout
+    private lateinit var fabAddCategory: FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         try {
-            setContentView(R.layout.activity_category_management_full)
+            setContentView(R.layout.activity_category_management_modern)
 
             categoryManager = CategoryManager(this)
 
             initViews()
+            setupToolbar()
+            setupRecyclerView()
             setupClickListeners()
+            observeViewModel()
             loadCategories()
+
+            // Load food items to calculate category counts
+            lebensmittelViewModel.fetchLebensmittel()
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -45,142 +67,212 @@ class CategoryManagementActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        categoriesContainer = findViewById(R.id.categoriesContainer)
-        btnAddCategory = findViewById(R.id.btnAddCategory)
+        toolbar = findViewById(R.id.toolbar)
+        recyclerViewCategories = findViewById(R.id.recyclerViewCategories)
+        tvCategoryCount = findViewById(R.id.tvCategoryCount)
+        emptyStateLayout = findViewById(R.id.emptyStateLayout)
+        fabAddCategory = findViewById(R.id.fabAddCategory)
     }
 
-    private fun setupClickListeners() {
-        btnAddCategory.setOnClickListener {
-            showAddCategoryDialog()
-        }
+    private fun setupToolbar() {
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        findViewById<Button>(R.id.btnBack).setOnClickListener {
+        toolbar.setNavigationOnClickListener {
             finish()
         }
     }
 
-    private fun loadCategories() {
-        try {
-            categoriesContainer.removeAllViews()
+    private fun setupRecyclerView() {
+        categoryAdapter = CategoryAdapter(
+            onEditClicked = { category -> showEditCategoryDialog(category) },
+            onDeleteClicked = { category -> showDeleteCategoryDialog(category) },
+            onItemClicked = { category ->
+                // TODO: Navigate to category details or filter food items by category
+                Toast.makeText(this, "Kategorie: ${category.name}", Toast.LENGTH_SHORT).show()
+            }
+        )
 
+        recyclerViewCategories.apply {
+            layoutManager = LinearLayoutManager(this@CategoryManagementActivity)
+            adapter = categoryAdapter
+        }
+    }
+
+    private fun setupClickListeners() {
+        fabAddCategory.setOnClickListener {
+            showAddCategoryDialog()
+        }
+    }
+
+    private fun observeViewModel() {
+        lebensmittelViewModel.lebensmittelList.observe(this) { lebensmittelList ->
+            // When food items are loaded, update categories with counts
+            loadCategoriesWithCounts(lebensmittelList ?: emptyList())
+        }
+    }
+
+    private fun loadCategories() {
+        // This method now just triggers the initial load
+        // The actual UI update happens in loadCategoriesWithCounts
+        val categories = categoryManager.getCategories()
+
+        // Update category count in header
+        tvCategoryCount.text = if (categories.size == 1) {
+            "1 Kategorie"
+        } else {
+            "${categories.size} Kategorien"
+        }
+    }
+
+    private fun loadCategoriesWithCounts(lebensmittelList: List<com.foodtrack.app.data.model.Lebensmittel>) {
+        try {
             val categories = categoryManager.getCategories()
 
             // Debug logging
             Log.d(TAG, "Loaded ${categories.size} categories")
-            Toast.makeText(this, "Loaded ${categories.size} categories", Toast.LENGTH_SHORT).show()
-            categories.forEach { category ->
-                Log.d(TAG, "Category - ID: ${category.id}, Name: ${category.name}")
+            Log.d(TAG, "Loaded ${lebensmittelList.size} food items")
+
+            // Calculate item count for each category
+            val categoriesWithCount = categories.map { category ->
+                val itemCount = lebensmittelList.count { lebensmittel ->
+                    lebensmittel.kategorie?.equals(category.name, ignoreCase = true) == true
+                }
+                Log.d(TAG, "Category '${category.name}' has $itemCount items")
+                CategoryWithCount(category, itemCount)
             }
 
-            if (categories.isEmpty()) {
-                val emptyText = TextView(this).apply {
-                    text = "No categories found. Add some categories!"
-                    setPadding(32)
-                    textSize = 16f
-                }
-                categoriesContainer.addView(emptyText)
+            // Update UI based on categories
+            if (categoriesWithCount.isEmpty()) {
+                recyclerViewCategories.visibility = View.GONE
+                emptyStateLayout.visibility = View.VISIBLE
             } else {
-                categories.forEach { category ->
-                    addCategoryView(category)
-                }
+                recyclerViewCategories.visibility = View.VISIBLE
+                emptyStateLayout.visibility = View.GONE
+                categoryAdapter.submitList(categoriesWithCount)
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            val errorText = TextView(this).apply {
-                text = "Error loading categories: ${e.message}"
-                setPadding(32)
-                textSize = 16f
-            }
-            categoriesContainer.addView(errorText)
+            Toast.makeText(this, "Error loading categories: ${e.message}", Toast.LENGTH_LONG).show()
+
+            // Show error state
+            recyclerViewCategories.visibility = View.GONE
+            emptyStateLayout.visibility = View.VISIBLE
         }
     }
 
-    private fun addCategoryView(category: Category) {
-        val categoryLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setPadding(32, 16, 32, 16)
-        }
 
-        val nameText = TextView(this).apply {
-            text = category.name
-            textSize = 18f
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        }
-
-        val editButton = Button(this).apply {
-            text = "Edit"
-            setOnClickListener { showEditCategoryDialog(category) }
-        }
-
-        val deleteButton = Button(this).apply {
-            text = "Delete"
-            setOnClickListener { showDeleteCategoryDialog(category) }
-        }
-
-        categoryLayout.addView(nameText)
-        categoryLayout.addView(editButton)
-        categoryLayout.addView(deleteButton)
-
-        categoriesContainer.addView(categoryLayout)
-    }
 
     private fun showAddCategoryDialog() {
-        val editText = EditText(this).apply {
-            hint = "Category name"
-        }
-
-        AlertDialog.Builder(this)
-            .setTitle("Add New Category")
-            .setView(editText)
-            .setPositiveButton("Add") { _, _ ->
-                val name = editText.text.toString().trim()
-                if (categoryManager.addCategory(name)) {
-                    Toast.makeText(this, "Category added", Toast.LENGTH_SHORT).show()
-                    loadCategories()
-                } else {
-                    Toast.makeText(this, "Failed to add category (may already exist)", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        showCategoryDialog(null)
     }
 
     private fun showEditCategoryDialog(category: Category) {
-        val editText = EditText(this).apply {
-            setText(category.name)
-            hint = "Category name"
+        showCategoryDialog(category)
+    }
+
+    private fun showCategoryDialog(category: Category?) {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_edit_category, null)
+
+        val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+        val tilCategoryName = dialogView.findViewById<TextInputLayout>(R.id.tilCategoryName)
+        val etCategoryName = dialogView.findViewById<TextInputEditText>(R.id.etCategoryName)
+        val chipGroupPredefined = dialogView.findViewById<ChipGroup>(R.id.chipGroupPredefined)
+        val btnCancel = dialogView.findViewById<MaterialButton>(R.id.btnCancel)
+        val btnSave = dialogView.findViewById<MaterialButton>(R.id.btnSave)
+
+        // Setup dialog for add or edit mode
+        val isEditMode = category != null
+        tvDialogTitle.text = if (isEditMode) "Kategorie bearbeiten" else "Kategorie hinzufügen"
+        btnSave.text = if (isEditMode) "Aktualisieren" else "Hinzufügen"
+
+        if (isEditMode) {
+            etCategoryName.setText(category!!.name)
+            chipGroupPredefined.visibility = View.GONE
         }
 
-        AlertDialog.Builder(this)
-            .setTitle("Edit Category")
-            .setView(editText)
-            .setPositiveButton("Save") { _, _ ->
-                val newName = editText.text.toString().trim()
-                if (categoryManager.updateCategory(category.id, newName)) {
-                    Toast.makeText(this, "Category updated", Toast.LENGTH_SHORT).show()
-                    loadCategories()
-                } else {
-                    Toast.makeText(this, "Failed to update category", Toast.LENGTH_SHORT).show()
-                }
+        // Setup predefined category chips
+        setupPredefinedChips(chipGroupPredefined, etCategoryName)
+
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        btnCancel.setOnClickListener { dialog.dismiss() }
+
+        btnSave.setOnClickListener {
+            val name = etCategoryName.text.toString().trim()
+
+            if (name.isEmpty()) {
+                tilCategoryName.error = "Name ist erforderlich"
+                return@setOnClickListener
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+
+            tilCategoryName.error = null
+
+            val success = if (isEditMode) {
+                categoryManager.updateCategory(category!!.id, name)
+            } else {
+                categoryManager.addCategory(name)
+            }
+
+            if (success) {
+                val message = if (isEditMode) "Kategorie aktualisiert" else "Kategorie hinzugefügt"
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                loadCategories()
+                // Reload food items to update counts
+                lebensmittelViewModel.fetchLebensmittel()
+                dialog.dismiss()
+            } else {
+                val errorMessage = if (isEditMode) "Fehler beim Aktualisieren" else "Kategorie existiert bereits"
+                Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        dialog.show()
+    }
+
+    private fun setupPredefinedChips(chipGroup: ChipGroup, etCategoryName: TextInputEditText) {
+        val predefinedCategories = listOf("Obst", "Gemüse", "Milchprodukte", "Fleisch", "Getränke", "Snacks")
+
+        for (i in 0 until chipGroup.childCount) {
+            val chip = chipGroup.getChildAt(i) as Chip
+            chip.setOnClickListener {
+                val categoryName = chip.text.toString()
+                etCategoryName.setText(categoryName)
+            }
+        }
     }
 
     private fun showDeleteCategoryDialog(category: Category) {
-        AlertDialog.Builder(this)
-            .setTitle("Delete Category")
-            .setMessage("Are you sure you want to delete '${category.name}'?")
-            .setPositiveButton("Delete") { _, _ ->
-                if (categoryManager.deleteCategory(category.id)) {
-                    Toast.makeText(this, "Category deleted", Toast.LENGTH_SHORT).show()
-                    loadCategories()
-                } else {
-                    Toast.makeText(this, "Failed to delete category", Toast.LENGTH_SHORT).show()
-                }
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_delete_confirmation, null)
+        val tvDeleteMessage = dialogView.findViewById<TextView>(R.id.tvDeleteMessage)
+
+        tvDeleteMessage.text = "Möchten Sie die Kategorie '${category.name}' wirklich löschen?"
+
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        dialogView.findViewById<MaterialButton>(R.id.btnCancel).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogView.findViewById<MaterialButton>(R.id.btnDelete).setOnClickListener {
+            if (categoryManager.deleteCategory(category.id)) {
+                Toast.makeText(this, "Kategorie gelöscht", Toast.LENGTH_SHORT).show()
+                loadCategories()
+                // Reload food items to update counts
+                lebensmittelViewModel.fetchLebensmittel()
+            } else {
+                Toast.makeText(this, "Fehler beim Löschen", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

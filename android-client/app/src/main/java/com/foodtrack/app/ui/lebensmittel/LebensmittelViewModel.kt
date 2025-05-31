@@ -6,6 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.foodtrack.app.data.model.Lebensmittel
+import com.foodtrack.app.data.model.StorageLocation
+import com.foodtrack.app.data.model.Package as FoodPackage
+import com.foodtrack.app.data.model.Household
 import com.foodtrack.app.data.network.RetrofitClient
 import com.foodtrack.app.utils.ExpirationUtils
 import kotlinx.coroutines.launch
@@ -38,6 +41,19 @@ class LebensmittelViewModel(application: Application) : AndroidViewModel(applica
     private val _expirationFilterOptions = MutableLiveData<List<String>>()
     val expirationFilterOptions: LiveData<List<String>> = _expirationFilterOptions
 
+    // Multi-Tenant data
+    private val _households = MutableLiveData<List<Household>>()
+    val households: LiveData<List<Household>> = _households
+
+    private val _storageLocations = MutableLiveData<List<StorageLocation>>()
+    val storageLocations: LiveData<List<StorageLocation>> = _storageLocations
+
+    private val _packages = MutableLiveData<List<FoodPackage>>()
+    val packages: LiveData<List<FoodPackage>> = _packages
+
+    private val _currentHousehold = MutableLiveData<Household?>()
+    val currentHousehold: LiveData<Household?> = _currentHousehold
+
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
@@ -47,7 +63,8 @@ class LebensmittelViewModel(application: Application) : AndroidViewModel(applica
     init {
         // Initialize expiration filter options
         _expirationFilterOptions.value = ExpirationUtils.getFilterOptions()
-        fetchLebensmittel()
+        // Fetch multi-tenant data first, then lebensmittel
+        fetchMultiTenantData()
     }
 
     fun fetchLebensmittel() {
@@ -124,5 +141,56 @@ class LebensmittelViewModel(application: Application) : AndroidViewModel(applica
 
     fun clearErrorMessage() {
         _errorMessage.value = null
+    }
+
+    // Multi-Tenant Functions
+    private fun fetchMultiTenantData() {
+        viewModelScope.launch {
+            try {
+                // Fetch households first
+                val householdsResponse = apiService.getMyHouseholds()
+                if (householdsResponse.isSuccessful) {
+                    val households = householdsResponse.body() ?: emptyList()
+                    _households.value = households
+
+                    // Set current household (first one for now)
+                    if (households.isNotEmpty()) {
+                        _currentHousehold.value = households.first()
+                    }
+                }
+
+                // Fetch storage locations
+                val locationsResponse = apiService.getStorageLocations()
+                if (locationsResponse.isSuccessful) {
+                    _storageLocations.value = locationsResponse.body() ?: emptyList()
+                }
+
+                // Fetch packages
+                val packagesResponse = apiService.getPackages()
+                if (packagesResponse.isSuccessful) {
+                    _packages.value = packagesResponse.body() ?: emptyList()
+                }
+
+                // Now fetch lebensmittel
+                fetchLebensmittel()
+
+            } catch (e: Exception) {
+                _errorMessage.value = "Failed to load multi-tenant data: ${e.message}"
+                // Still try to fetch lebensmittel even if multi-tenant data fails
+                fetchLebensmittel()
+            }
+        }
+    }
+
+    fun refreshMultiTenantData() {
+        fetchMultiTenantData()
+    }
+
+    fun getStorageLocationById(id: Int): StorageLocation? {
+        return _storageLocations.value?.find { it.id == id }
+    }
+
+    fun getPackageById(id: Int): FoodPackage? {
+        return _packages.value?.find { it.id == id }
     }
 }

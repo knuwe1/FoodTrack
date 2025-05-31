@@ -55,6 +55,39 @@ switch (true) {
         }
         break;
 
+    // Debug endpoint
+    case preg_match('#^/debug/?$#', $path):
+        http_response_code(200);
+        echo json_encode([
+            'message' => 'Debug endpoint works',
+            'method' => $request_method,
+            'path' => $path,
+            'headers' => getallheaders(),
+            'timestamp' => date('Y-m-d H:i:s')
+        ]);
+        break;
+
+
+
+    // Simple test endpoint
+    case preg_match('#^/test/?$#', $path):
+        http_response_code(200);
+        echo json_encode(['status' => 'OK', 'message' => 'Test endpoint works']);
+        break;
+
+    // Multi-Tenant API endpoints
+    case preg_match('#^/households/?(.*)$#', $path):
+        include 'api/v1/households.php';
+        break;
+
+    case preg_match('#^/storage-locations/?(.*)$#', $path):
+        include 'api/v1/storage-locations.php';
+        break;
+
+    case preg_match('#^/packages/?(.*)$#', $path):
+        include 'api/v1/packages.php';
+        break;
+
     // Lebensmittel endpoints
     case preg_match('#^/lebensmittel/?$#', $path):
         require_once 'endpoints/lebensmittel.php';

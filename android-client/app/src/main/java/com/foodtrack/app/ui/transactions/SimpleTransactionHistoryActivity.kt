@@ -25,6 +25,7 @@ class SimpleTransactionHistoryActivity : AppCompatActivity() {
 
     private fun setupViews() {
         recyclerView = findViewById(R.id.rvTransactions)
+
         transactionAdapter = SimpleTransactionAdapter()
 
         recyclerView.apply {

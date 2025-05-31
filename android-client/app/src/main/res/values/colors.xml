@@ -10,4 +10,81 @@
     <color name="background_gradient_start">#667eea</color>
     <color name="background_gradient_center">#764ba2</color>
     <color name="background_gradient_end">#f093fb</color>
+
+    <!-- Material Design 3 Color System -->
+
+    <!-- Primary Colors (Green - Food/Nature theme) -->
+    <color name="md_theme_light_primary">#2E7D32</color>
+    <color name="md_theme_light_onPrimary">#FFFFFF</color>
+    <color name="md_theme_light_primaryContainer">#A5D6A7</color>
+    <color name="md_theme_light_onPrimaryContainer">#1B5E20</color>
+
+    <!-- Secondary Colors (Orange - Accent/Warning) -->
+    <color name="md_theme_light_secondary">#F57C00</color>
+    <color name="md_theme_light_onSecondary">#FFFFFF</color>
+    <color name="md_theme_light_secondaryContainer">#FFE0B2</color>
+    <color name="md_theme_light_onSecondaryContainer">#E65100</color>
+
+    <!-- Tertiary Colors (Blue - Information) -->
+    <color name="md_theme_light_tertiary">#1976D2</color>
+    <color name="md_theme_light_onTertiary">#FFFFFF</color>
+    <color name="md_theme_light_tertiaryContainer">#BBDEFB</color>
+    <color name="md_theme_light_onTertiaryContainer">#0D47A1</color>
+
+    <!-- Error Colors -->
+    <color name="md_theme_light_error">#D32F2F</color>
+    <color name="md_theme_light_onError">#FFFFFF</color>
+    <color name="md_theme_light_errorContainer">#FFCDD2</color>
+    <color name="md_theme_light_onErrorContainer">#B71C1C</color>
+
+    <!-- Background & Surface -->
+    <color name="md_theme_light_background">#FEFEFE</color>
+    <color name="md_theme_light_onBackground">#1C1B1F</color>
+    <color name="md_theme_light_surface">#FFFFFF</color>
+    <color name="md_theme_light_onSurface">#1C1B1F</color>
+    <color name="md_theme_light_surfaceVariant">#F5F5F5</color>
+    <color name="md_theme_light_onSurfaceVariant">#49454F</color>
+
+    <!-- Outline & Shadow -->
+    <color name="md_theme_light_outline">#79747E</color>
+    <color name="md_theme_light_outlineVariant">#CAC4D0</color>
+    <color name="md_theme_light_shadow">#000000</color>
+
+    <!-- Food Status Colors (Semantic) -->
+    <color name="food_status_fresh">#2E7D32</color>
+    <color name="food_status_fresh_container">#E8F5E8</color>
+    <color name="food_status_expiring_soon">#F57C00</color>
+    <color name="food_status_expiring_soon_container">#FFF3E0</color>
+    <color name="food_status_expired">#D32F2F</color>
+    <color name="food_status_expired_container">#FFEBEE</color>
+
+    <!-- Low Stock Warning -->
+    <color name="low_stock_warning">#E65100</color>
+    <color name="low_stock_warning_container">#FFF3E0</color>
+
+    <!-- Category Colors (for visual distinction) -->
+    <color name="category_fruits">#4CAF50</color>
+    <color name="category_vegetables">#8BC34A</color>
+    <color name="category_dairy">#2196F3</color>
+    <color name="category_meat">#F44336</color>
+    <color name="category_grains">#FF9800</color>
+    <color name="category_beverages">#9C27B0</color>
+    <color name="category_snacks">#795548</color>
+    <color name="category_frozen">#00BCD4</color>
+    <color name="category_canned">#607D8B</color>
+    <color name="category_spices">#FF5722</color>
+    <color name="category_default">#757575</color>
+
+    <!-- Loading Overlay -->
+    <color name="loading_overlay_background">#80000000</color>
+
+    <!-- Transaction Colors -->
+    <color name="transaction_purchase">#4CAF50</color>
+    <color name="transaction_consumption">#FF5722</color>
+
+    <!-- Chip Colors -->
+    <color name="chip_purchase_background">#E8F5E8</color>
+    <color name="chip_purchase_text">#2E7D32</color>
+    <color name="chip_consumption_background">#FFEBEE</color>
+    <color name="chip_consumption_text">#D32F2F</color>
 </resources>

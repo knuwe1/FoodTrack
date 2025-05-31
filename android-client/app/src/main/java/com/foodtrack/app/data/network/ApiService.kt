@@ -73,4 +73,64 @@ interface ApiService {
 
     @GET("api/v1/transactions/statistics/items")
     suspend fun getLebensmittelStatistics(@Query("limit") limit: Int = 10): Response<List<LebensmittelStatistics>>
+
+    // Household Management
+    @POST("api/v1/households/")
+    suspend fun createHousehold(@Body householdCreate: HouseholdCreate): Response<Household>
+
+    @GET("api/v1/households/")
+    suspend fun getMyHouseholds(): Response<List<Household>>
+
+    @GET("api/v1/households/{id}")
+    suspend fun getHouseholdById(@Path("id") id: Int): Response<Household>
+
+    @PATCH("api/v1/households/{id}")
+    suspend fun updateHousehold(@Path("id") id: Int, @Body householdUpdate: HouseholdUpdate): Response<Household>
+
+    @DELETE("api/v1/households/{id}")
+    suspend fun deleteHousehold(@Path("id") id: Int): Response<Unit>
+
+    @POST("api/v1/households/{id}/invite")
+    suspend fun generateInviteCode(@Path("id") id: Int): Response<InviteCodeResponse>
+
+    @POST("api/v1/households/join")
+    suspend fun joinHousehold(@Body joinRequest: JoinHouseholdRequest): Response<Household>
+
+    @GET("api/v1/households/{id}/members")
+    suspend fun getHouseholdMembers(@Path("id") id: Int): Response<List<User>>
+
+    @DELETE("api/v1/households/{household_id}/members/{user_id}")
+    suspend fun removeHouseholdMember(@Path("household_id") householdId: Int, @Path("user_id") userId: Int): Response<Unit>
+
+    // Storage Location Management
+    @POST("api/v1/storage-locations/")
+    suspend fun createStorageLocation(@Body storageLocationCreate: StorageLocationCreate): Response<StorageLocation>
+
+    @GET("api/v1/storage-locations/")
+    suspend fun getStorageLocations(): Response<List<StorageLocation>>
+
+    @GET("api/v1/storage-locations/{id}")
+    suspend fun getStorageLocationById(@Path("id") id: Int): Response<StorageLocation>
+
+    @PATCH("api/v1/storage-locations/{id}")
+    suspend fun updateStorageLocation(@Path("id") id: Int, @Body storageLocationUpdate: StorageLocationUpdate): Response<StorageLocation>
+
+    @DELETE("api/v1/storage-locations/{id}")
+    suspend fun deleteStorageLocation(@Path("id") id: Int): Response<Unit>
+
+    // Package Management
+    @POST("api/v1/packages/")
+    suspend fun createPackage(@Body packageCreate: PackageCreate): Response<Package>
+
+    @GET("api/v1/packages/")
+    suspend fun getPackages(): Response<List<Package>>
+
+    @GET("api/v1/packages/{id}")
+    suspend fun getPackageById(@Path("id") id: Int): Response<Package>
+
+    @PATCH("api/v1/packages/{id}")
+    suspend fun updatePackage(@Path("id") id: Int, @Body packageUpdate: PackageUpdate): Response<Package>
+
+    @DELETE("api/v1/packages/{id}")
+    suspend fun deletePackage(@Path("id") id: Int): Response<Unit>
 }

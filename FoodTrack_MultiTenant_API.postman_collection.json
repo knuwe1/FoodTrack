@@ -1,0 +1,202 @@
+{
+  "info": {
+    "name": "FoodTrack Multi-Tenant API",
+    "description": "API Collection for FoodTrack Multi-Tenant System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "demo-token",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://foodtrack.knutwehr.de/api/v1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Households",
+      "item": [
+        {
+          "name": "Get My Households",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/households/",
+              "host": ["{{baseUrl}}"],
+              "path": ["households", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Household",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Haushalt\",\n  \"description\": \"Ein Test-Haushalt\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/households/",
+              "host": ["{{baseUrl}}"],
+              "path": ["households", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Household Members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/households/1/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["households", "1", "members"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Storage Locations",
+      "item": [
+        {
+          "name": "Get Storage Locations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/storage-locations/",
+              "host": ["{{baseUrl}}"],
+              "path": ["storage-locations", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Storage Location",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Kühlschrank\",\n  \"description\": \"Testlagerort\",\n  \"location_type\": \"refrigerator\",\n  \"temperature_zone\": \"refrigerated\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/storage-locations/",
+              "host": ["{{baseUrl}}"],
+              "path": ["storage-locations", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Packages",
+      "item": [
+        {
+          "name": "Get Packages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/packages/",
+              "host": ["{{baseUrl}}"],
+              "path": ["packages", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Package",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test 2L Flasche\",\n  \"description\": \"2 Liter Testflasche\",\n  \"package_type\": \"bottle\",\n  \"fill_amount\": 2.0,\n  \"fill_unit\": \"L\",\n  \"package_material\": \"plastic\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/packages/",
+              "host": ["{{baseUrl}}"],
+              "path": ["packages", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lebensmittel",
+      "item": [
+        {
+          "name": "Get Lebensmittel",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/lebensmittel/",
+              "host": ["{{baseUrl}}"],
+              "path": ["lebensmittel", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Lebensmittel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Orangensaft\",\n  \"kategorie\": \"Getränke\",\n  \"einheit\": \"L\",\n  \"storage_location_id\": 1,\n  \"package_id\": 3,\n  \"package_count\": 2,\n  \"mindestmenge\": 1,\n  \"quantity\": 4\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lebensmittel/",
+              "host": ["{{baseUrl}}"],
+              "path": ["lebensmittel", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Low Stock Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/lebensmittel/low-stock",
+              "host": ["{{baseUrl}}"],
+              "path": ["lebensmittel", "low-stock"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

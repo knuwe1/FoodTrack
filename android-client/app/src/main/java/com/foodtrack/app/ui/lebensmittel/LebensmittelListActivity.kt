@@ -4,26 +4,28 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
-import android.widget.AdapterView
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.ArrayAdapter
-import android.widget.ProgressBar
-import android.widget.Spinner
+import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.foodtrack.app.R
 import com.foodtrack.app.data.model.Lebensmittel
-import com.foodtrack.app.ui.categories.CategoryManagementActivity
 import com.foodtrack.app.ui.transactions.TransactionViewModel
-import com.foodtrack.app.ui.transactions.SimpleTransactionHistoryActivity
 import com.foodtrack.app.ui.scanner.BarcodeScannerActivity
+import com.foodtrack.app.ui.categories.CategoryManagementActivity
+import com.foodtrack.app.ui.transactions.SimpleTransactionHistoryActivity
+import com.foodtrack.app.ui.multitenant.MultiTenantTestActivity
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import java.text.SimpleDateFormat
@@ -34,43 +36,51 @@ class LebensmittelListActivity : AppCompatActivity() {
 
     private val viewModel: LebensmittelViewModel by viewModels()
     private val transactionViewModel: TransactionViewModel by viewModels()
+    private lateinit var toolbar: MaterialToolbar
     private lateinit var recyclerView: RecyclerView
     private lateinit var lebensmittelAdapter: LebensmittelAdapter
-    private lateinit var progressBar: ProgressBar
-    private lateinit var emptyListMessage: TextView
     private lateinit var fabAdd: FloatingActionButton
     private lateinit var fabScan: FloatingActionButton
-    private lateinit var btnCategories: MaterialButton
-    private lateinit var btnTransactionHistory: MaterialButton
-    private lateinit var spinnerCategoryFilter: Spinner
-    private lateinit var spinnerExpirationFilter: Spinner
+    private lateinit var spinnerKategorie: AutoCompleteTextView
+    private lateinit var chipGroupStatus: ChipGroup
+    private lateinit var chipAll: Chip
+    private lateinit var chipFresh: Chip
+    private lateinit var chipExpiringSoon: Chip
+    private lateinit var chipExpired: Chip
+    private lateinit var chipLowStock: Chip
     private lateinit var categoryAdapter: ArrayAdapter<String>
-    private lateinit var expirationAdapter: ArrayAdapter<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_lebensmittel_list)
+        setContentView(R.layout.activity_lebensmittel_list_new)
 
         // Initialize views
-        recyclerView = findViewById(R.id.rvLebensmittelList)
-        progressBar = findViewById(R.id.pbListLoading)
-        emptyListMessage = findViewById(R.id.tvEmptyListMessage)
-        fabAdd = findViewById(R.id.fabAddLebensmittel)
+        toolbar = findViewById(R.id.toolbar)
+        recyclerView = findViewById(R.id.recyclerViewLebensmittel)
+        fabAdd = findViewById(R.id.fabAdd)
         fabScan = findViewById(R.id.fabScan)
-        btnCategories = findViewById(R.id.btnCategories)
-        btnTransactionHistory = findViewById(R.id.btnTransactionHistory)
-        spinnerCategoryFilter = findViewById(R.id.spinnerCategoryFilter)
-        spinnerExpirationFilter = findViewById(R.id.spinnerExpirationFilter)
+        spinnerKategorie = findViewById(R.id.spinnerKategorie)
+        chipGroupStatus = findViewById(R.id.chipGroupStatus)
+        chipAll = findViewById(R.id.chipAll)
+        chipFresh = findViewById(R.id.chipFresh)
+        chipExpiringSoon = findViewById(R.id.chipExpiringSoon)
+        chipExpired = findViewById(R.id.chipExpired)
+        chipLowStock = findViewById(R.id.chipLowStock)
 
+        setupToolbar()
         setupRecyclerView()
         setupFilters()
+        setupClickListeners()
         observeViewModel()
         observeTransactionViewModel()
+        observeMultiTenantData()
 
         // Initial fetch is done in ViewModel's init block,
         // but you might want to add a swipe-to-refresh or a button to call this explicitly later.
         // viewModel.fetchLebensmittel() // Uncomment if not fetching in init or need refresh logic here
+    }
 
+    private fun setupClickListeners() {
         fabAdd.setOnClickListener {
             val intent = Intent(this, com.foodtrack.app.ui.addedit.AddEditLebensmittelActivity::class.java)
             startActivity(intent)
@@ -80,21 +90,72 @@ class LebensmittelListActivity : AppCompatActivity() {
             val intent = Intent(this, BarcodeScannerActivity::class.java)
             startActivity(intent)
         }
+    }
 
-        btnCategories.setOnClickListener {
-            try {
-                val intent = Intent(this, CategoryManagementActivity::class.java)
+    private fun setupToolbar() {
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = getString(R.string.my_food_items)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_categories -> {
+                try {
+                    val intent = Intent(this, CategoryManagementActivity::class.java)
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Categories feature coming soon!", Toast.LENGTH_SHORT).show()
+                }
+                true
+            }
+            R.id.action_transaction_history -> {
+                val intent = Intent(this, SimpleTransactionHistoryActivity::class.java)
                 startActivity(intent)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Toast.makeText(this, "Categories feature coming soon!", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.action_multi_tenant_test -> {
+                val intent = Intent(this, MultiTenantTestActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun setupFilters() {
+        // Setup category filter
+        categoryAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, mutableListOf<String>())
+        spinnerKategorie.setAdapter(categoryAdapter)
+
+        spinnerKategorie.setOnItemClickListener { _, _, position, _ ->
+            val selectedCategory = categoryAdapter.getItem(position)
+            viewModel.setSelectedCategory(selectedCategory)
+        }
+
+        // Setup status filter chips
+        chipGroupStatus.setOnCheckedStateChangeListener { group, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                val checkedChip = findViewById<Chip>(checkedIds[0])
+                val filterType = when (checkedChip.id) {
+                    R.id.chipAll -> "all"
+                    R.id.chipFresh -> "fresh"
+                    R.id.chipExpiringSoon -> "expiring_soon"
+                    R.id.chipExpired -> "expired"
+                    R.id.chipLowStock -> "low_stock"
+                    else -> "all"
+                }
+                viewModel.setSelectedExpirationFilter(filterType)
             }
         }
 
-        btnTransactionHistory.setOnClickListener {
-            val intent = Intent(this, SimpleTransactionHistoryActivity::class.java)
-            startActivity(intent)
-        }
+        // Set default selection
+        chipAll.isChecked = true
     }
 
     override fun onResume() {
@@ -102,6 +163,8 @@ class LebensmittelListActivity : AppCompatActivity() {
         // Refresh the list when the activity resumes
         viewModel.fetchLebensmittel()
     }
+
+
 
     private fun setupRecyclerView() {
         lebensmittelAdapter = LebensmittelAdapter(
@@ -117,7 +180,9 @@ class LebensmittelListActivity : AppCompatActivity() {
             },
             onConsumeClicked = { lebensmittel ->
                 showTransactionDialog(lebensmittel, isConsumption = true)
-            }
+            },
+            getStorageLocationById = { id -> viewModel.getStorageLocationById(id) },
+            getPackageById = { id -> viewModel.getPackageById(id) }
         )
         recyclerView.apply {
             adapter = lebensmittelAdapter
@@ -125,92 +190,28 @@ class LebensmittelListActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateUiVisibility() {
-        val isLoading = viewModel.isLoading.value ?: false
-        val currentList = viewModel.lebensmittelList.value
-        val currentError = viewModel.errorMessage.value
 
-        progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
 
-        if (isLoading) {
-            recyclerView.visibility = View.GONE
-            emptyListMessage.visibility = View.GONE
-        } else {
-            if (currentError != null) {
-                recyclerView.visibility = View.GONE
-                emptyListMessage.text = currentError
-                emptyListMessage.visibility = View.VISIBLE
-                Toast.makeText(this, currentError, Toast.LENGTH_LONG).show()
-                viewModel.clearErrorMessage() // Clear after showing
-            } else if (currentList.isNullOrEmpty()) {
-                recyclerView.visibility = View.GONE
-                emptyListMessage.text = "No food items found." // Default empty message
-                emptyListMessage.visibility = View.VISIBLE
-            } else {
-                recyclerView.visibility = View.VISIBLE
-                emptyListMessage.visibility = View.GONE
-                lebensmittelAdapter.submitList(currentList) // submitList should be here
-            }
-        }
-    }
 
-    private fun setupFilters() {
-        // Setup category filter
-        categoryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, mutableListOf<String>())
-        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerCategoryFilter.adapter = categoryAdapter
-
-        spinnerCategoryFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedCategory = categoryAdapter.getItem(position)
-                viewModel.setSelectedCategory(selectedCategory)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Do nothing
-            }
-        }
-
-        // Setup expiration filter
-        expirationAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, mutableListOf<String>())
-        expirationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerExpirationFilter.adapter = expirationAdapter
-
-        spinnerExpirationFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedFilter = expirationAdapter.getItem(position)
-                viewModel.setSelectedExpirationFilter(selectedFilter)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Do nothing
-            }
-        }
-    }
 
     private fun observeViewModel() {
         viewModel.lebensmittelList.observe(this) { lebensmittelList ->
-            // Only submit list if not loading and no error
-            if (viewModel.isLoading.value == false && viewModel.errorMessage.value == null) {
-                lebensmittelAdapter.submitList(lebensmittelList ?: emptyList())
-            }
-            updateUiVisibility()
+            lebensmittelAdapter.submitList(lebensmittelList ?: emptyList())
         }
 
         viewModel.categories.observe(this) { categories ->
             categoryAdapter.clear()
+            categoryAdapter.add("Alle Kategorien") // Add "All Categories" option
             categoryAdapter.addAll(categories ?: emptyList())
             categoryAdapter.notifyDataSetChanged()
         }
 
-        viewModel.expirationFilterOptions.observe(this) { options ->
-            expirationAdapter.clear()
-            expirationAdapter.addAll(options ?: emptyList())
-            expirationAdapter.notifyDataSetChanged()
+        viewModel.errorMessage.observe(this) { error ->
+            if (error != null) {
+                Toast.makeText(this, error, Toast.LENGTH_LONG).show()
+                viewModel.clearErrorMessage()
+            }
         }
-
-        viewModel.isLoading.observe(this) { _ -> updateUiVisibility() }
-        viewModel.errorMessage.observe(this) { _ -> updateUiVisibility() }
     }
 
     private fun observeTransactionViewModel() {
@@ -232,27 +233,53 @@ class LebensmittelListActivity : AppCompatActivity() {
     }
 
     private fun showTransactionDialog(lebensmittel: Lebensmittel, isConsumption: Boolean) {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_transaction, null)
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_transaction_modern, null)
 
+        val ivTransactionIcon = dialogView.findViewById<android.widget.ImageView>(R.id.ivTransactionIcon)
         val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
         val tvLebensmittelName = dialogView.findViewById<TextView>(R.id.tvLebensmittelName)
         val tvCurrentQuantity = dialogView.findViewById<TextView>(R.id.tvCurrentQuantity)
+        val tvCurrentExpiration = dialogView.findViewById<TextView>(R.id.tvCurrentExpiration)
+        val layoutCurrentExpiration = dialogView.findViewById<android.widget.LinearLayout>(R.id.layoutCurrentExpiration)
+        val tilQuantity = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.tilQuantity)
         val etQuantity = dialogView.findViewById<TextInputEditText>(R.id.etQuantity)
+        val tilReason = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.tilReason)
         val etReason = dialogView.findViewById<TextInputEditText>(R.id.etReason)
+        val tilMhd = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.tilMhd)
         val etMhd = dialogView.findViewById<TextInputEditText>(R.id.etMhd)
-        val layoutMhd = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.layoutMhd)
 
         // Setup dialog content
         tvDialogTitle.text = if (isConsumption) "Verbrauch erfassen" else "Einkauf erfassen"
-        tvLebensmittelName.text = "Lebensmittel: ${lebensmittel.name}"
-        tvCurrentQuantity.text = "Aktuelle Menge: ${lebensmittel.menge ?: 0} ${lebensmittel.einheit ?: ""}"
+        tvLebensmittelName.text = lebensmittel.name
+        tvCurrentQuantity.text = "${lebensmittel.menge ?: 0} ${lebensmittel.einheit ?: ""}"
+
+        // Setup transaction icon
+        if (isConsumption) {
+            ivTransactionIcon.setImageResource(R.drawable.ic_remove_24)
+            ivTransactionIcon.background = ContextCompat.getDrawable(this, R.drawable.warning_icon_background)
+        } else {
+            ivTransactionIcon.setImageResource(R.drawable.ic_add_24)
+            ivTransactionIcon.background = ContextCompat.getDrawable(this, R.drawable.transaction_icon_background)
+        }
+
+        // Setup current expiration info
+        if (!lebensmittel.ablaufdatum.isNullOrEmpty()) {
+            layoutCurrentExpiration.visibility = android.view.View.VISIBLE
+            tvCurrentExpiration.text = lebensmittel.ablaufdatum
+        } else {
+            layoutCurrentExpiration.visibility = android.view.View.GONE
+        }
+
+        // Setup input field hints based on transaction type
+        tilQuantity.hint = if (isConsumption) "Verbrauchte Menge" else "Eingekaufte Menge"
+        tilReason.hint = if (isConsumption) "Grund für Verbrauch (optional)" else "Einkaufsnotiz (optional)"
 
         // MHD-Feld nur bei Einkauf anzeigen
-        layoutMhd.visibility = if (isConsumption) android.view.View.GONE else android.view.View.VISIBLE
+        tilMhd.visibility = if (isConsumption) android.view.View.GONE else android.view.View.VISIBLE
 
         // DatePicker für MHD-Feld einrichten
         if (!isConsumption) {
-            setupDatePicker(etMhd, layoutMhd)
+            setupDatePicker(etMhd, tilMhd)
         }
 
         val dialog = MaterialAlertDialogBuilder(this)
@@ -340,6 +367,25 @@ class LebensmittelListActivity : AppCompatActivity() {
             regex.matches(date)
         } catch (e: Exception) {
             false
+        }
+    }
+
+    private fun observeMultiTenantData() {
+        // Observe current household and update toolbar subtitle
+        viewModel.currentHousehold.observe(this) { household ->
+            household?.let {
+                toolbar.subtitle = "📍 ${it.name}"
+            }
+        }
+
+        // Observe storage locations for future use
+        viewModel.storageLocations.observe(this) { locations ->
+            // Storage locations loaded - could be used for filtering later
+        }
+
+        // Observe packages for future use
+        viewModel.packages.observe(this) { packages ->
+            // Packages loaded - could be used in add/edit dialogs
         }
     }
 }

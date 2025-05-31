@@ -4,15 +4,20 @@ require_once 'users.php';
 
 function get_lebensmittel_list($pdo) {
     try {
+        // Get user info for Multi-Tenant filtering
+        require_once __DIR__ . '/../middleware/auth.php';
+        $user = requireAuth();
+
         $stmt = $pdo->prepare("
             SELECT l.*,
                    COALESCE(SUM(CASE WHEN b.menge > 0 THEN b.menge ELSE 0 END), 0) as quantity
             FROM lebensmittel l
             LEFT JOIN lebensmittel_batches b ON l.id = b.lebensmittel_id
+            WHERE l.household_id = ?
             GROUP BY l.id
             ORDER BY l.name
         ");
-        $stmt->execute();
+        $stmt->execute([$user['household_id']]);
         $lebensmittel = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Convert to expected format
@@ -85,12 +90,19 @@ function create_lebensmittel($pdo) {
     }
 
     try {
+        // Get user info for Multi-Tenant
+        require_once __DIR__ . '/../middleware/auth.php';
+        $user = requireAuth();
+
         $pdo->beginTransaction();
 
-        // Create lebensmittel
+        // Create lebensmittel with Multi-Tenant fields
         $stmt = $pdo->prepare("
-            INSERT INTO lebensmittel (name, menge, einheit, ablaufdatum, kategorie, ean_code, mindestmenge)
-            VALUES (?, 0, ?, ?, ?, ?, ?)
+            INSERT INTO lebensmittel (
+                name, menge, einheit, ablaufdatum, kategorie, ean_code, mindestmenge,
+                household_id, storage_location_id, package_id, package_count, created_by
+            )
+            VALUES (?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([
             $input['name'],
@@ -98,7 +110,12 @@ function create_lebensmittel($pdo) {
             $input['ablaufdatum'] ?? null,
             $input['kategorie'] ?? null,
             $input['ean_code'] ?? null,
-            $input['mindestmenge'] ?? 0
+            $input['mindestmenge'] ?? 0,
+            $user['household_id'],
+            $input['storage_location_id'] ?? null,
+            $input['package_id'] ?? 1, // Default package
+            $input['package_count'] ?? 1,
+            $user['id']
         ]);
 
         $lebensmittel_id = $pdo->lastInsertId();

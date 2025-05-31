@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">FoodTrack</string>
+    <string name="category">Kategorie</string>
 
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -12,4 +13,62 @@
     <string name="menu_profile">Profile</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_logout">Logout</string>
+
+    <!-- Material Design 3 Strings -->
+    <string name="my_food_items">Meine Lebensmittel</string>
+    <string name="filter_options">Filter-Optionen</string>
+    <string name="status_filter">Status-Filter</string>
+    <string name="all_items">Alle anzeigen</string>
+    <string name="fresh">Frisch</string>
+    <string name="expiring_soon">Läuft bald ab</string>
+    <string name="expired">Abgelaufen</string>
+    <string name="low_stock">Niedriger Bestand</string>
+    <string name="scan_barcode">Barcode scannen</string>
+    <string name="add_food_item">Lebensmittel hinzufügen</string>
+    <string name="more_options">Weitere Optionen</string>
+    <string name="consume">Verbrauchen</string>
+    <string name="purchase">Einkaufen</string>
+    <string name="expiration_date">Ablaufdatum</string>
+    <string name="quantity">Menge</string>
+    <string name="low_stock_warning">Niedriger Bestand Warnung</string>
+
+    <!-- Category Management -->
+    <string name="category_management">Kategorien verwalten</string>
+    <string name="manage_categories">Kategorien verwalten</string>
+    <string name="category_management_description">Erstellen, bearbeiten und löschen Sie Kategorien für Ihre Lebensmittel</string>
+    <string name="add_category">Kategorie hinzufügen</string>
+    <string name="edit_category">Kategorie bearbeiten</string>
+    <string name="delete_category">Kategorie löschen</string>
+    <string name="category_icon">Kategorie-Symbol</string>
+
+    <!-- Add/Edit Form -->
+    <string name="basic_information">Grundinformationen</string>
+    <string name="optional_information">Optionale Angaben</string>
+    <string name="product_name">Produktname</string>
+    <string name="unit">Einheit</string>
+    <string name="ean_code">EAN-Code</string>
+    <string name="minimum_quantity">Mindestmenge</string>
+    <string name="required_field">Pflichtfeld</string>
+    <string name="tap_to_select_date">Tippen Sie, um Datum auszuwählen</string>
+    <string name="optional_scan_or_enter">Optional: Scannen oder eingeben</string>
+    <string name="low_stock_warning_threshold">Schwellenwert für Bestandswarnung</string>
+    <string name="save_food_item">Lebensmittel speichern</string>
+
+    <!-- Transaction Dialog -->
+    <string name="record_purchase">Einkauf erfassen</string>
+    <string name="record_consumption">Verbrauch erfassen</string>
+    <string name="transaction_icon">Transaktions-Symbol</string>
+    <string name="current_information">Aktuelle Informationen</string>
+    <string name="current_quantity_label">Aktuelle Menge:</string>
+    <string name="current_expiration_label">Aktuelles MHD:</string>
+    <string name="quantity_change">Mengenänderung</string>
+    <string name="enter_positive_number">Positive Zahl eingeben</string>
+    <string name="new_expiration_date">Neues Ablaufdatum</string>
+    <string name="optional_for_new_batch">Optional für neue Charge</string>
+    <string name="reason_note">Grund/Notiz</string>
+    <string name="optional_transaction_note">Optionale Transaktionsnotiz</string>
+    <string name="confirm">Bestätigen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="current_quantity">Aktuelle Menge</string>
+    <string name="current_expiration">Aktuelles Ablaufdatum</string>
 </resources>

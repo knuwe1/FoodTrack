@@ -268,9 +268,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **📧 Email:** support@foodtrack.com
-- **🐛 Issues:** [GitHub Issues](https://github.com/yourusername/FoodTrack/issues)
-- **📖 Wiki:** [Project Wiki](https://github.com/yourusername/FoodTrack/wiki)
+- **📧 Email:** knut.wehr@gmail.com
+- **🐛 Issues:** [GitHub Issues](https://github.com/knuwe1/FoodTrack/issues)
+- **📖 Wiki:** [Project Wiki](https://github.com/knuwe1/FoodTrack/wiki)
 
 ---
 

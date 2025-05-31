@@ -1,36 +1,48 @@
-# 🍎 FoodTrack - Smart Food Inventory Management
+# 🍎 FoodTrack - Multi-Tenant Smart Food Inventory Management
 
 [![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](android-client/)
 [![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)](php-backend/)
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](backend/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+[![Release](https://img.shields.io/badge/Release-v2.1.0-brightgreen?style=for-the-badge)](https://github.com/knuwe1/FoodTrack/releases/tag/v2.1.0)
 
-A comprehensive food inventory management system with intelligent barcode scanning, expiration tracking, and smart consumption management. Never waste food again!
+A comprehensive **Multi-Tenant** food inventory management system with intelligent barcode scanning, expiration tracking, and smart consumption management. Perfect for households, families, and shared living spaces. Never waste food again!
 
 ## ✨ Features
+
+### 🏠 **Multi-Tenant Architecture**
+- **👥 Household Management** - Separate inventories for different households
+- **🔐 User Management** - Admin-controlled access per household
+- **📍 Storage Locations** - Organize items by location (Fridge, Pantry, etc.)
+- **📦 Package Management** - Track different package sizes and types
+- **🔒 Data Isolation** - Complete separation between households
 
 ### 📱 **Android App**
 - **🏷️ EAN Barcode Scanning** with OpenFoodFacts integration
 - **📅 Smart Expiration Tracking** with FIFO consumption
 - **⚠️ Low Stock Warnings** with configurable minimum quantities
-- **📊 Batch Management** for different expiration dates
+- **📊 Batch Management** for different expiration dates separately
 - **🗂️ Category Management** with automatic categorization
 - **📈 Transaction History** with purchase/consumption tracking
-- **🎯 Modern Material Design** with intuitive navigation
+- **🎯 Modern Material Design 3** with intuitive navigation
+- **📍 Storage Location Selection** - Choose where items are stored
+- **📦 Package Size Tracking** - Manage different package types
 
 ### 🌐 **Backend Options**
 - **🐍 Python/FastAPI Backend** - Full-featured development server
 - **🌍 PHP Backend** - Production-ready for shared hosting (1blu, etc.)
 - **🔐 Secure Configuration** - Environment-based credentials
-- **📊 RESTful API** - Complete CRUD operations
+- **📊 RESTful API** - Complete CRUD operations with Multi-Tenant support
 - **🔄 Real-time Sync** - Instant data synchronization
+- **🛡️ Standalone Endpoints** - No external dependencies
 
 ### 🧠 **Smart Features**
 - **🤖 Auto-fill Product Data** - Name, brand, quantity, unit, category from barcode
-- **📦 Batch System** - Track items with different expiration dates separately
+- **📦 Advanced Batch System** - Track items with different expiration dates separately
 - **🔄 FIFO Consumption** - Automatically use oldest items first
 - **⚡ Instant Warnings** - Visual alerts for expired/low-stock items
 - **📱 Offline-Ready** - Local data caching for uninterrupted use
+- **🏠 Household Switching** - Easy switching between different households
 
 ## 🚀 Quick Start
 
@@ -127,12 +139,24 @@ Content-Type: application/json
 }
 ```
 
-### 🍎 **Food Items**
+### 🏠 **Multi-Tenant Endpoints**
 ```http
-# Get all items
+# Get households
+GET /households/
+
+# Get storage locations for household
+GET /api/v1/storage-locations/
+
+# Get packages for household
+GET /api/v1/packages/
+```
+
+### 🍎 **Food Items (Multi-Tenant)**
+```http
+# Get all items for current household
 GET /api/v1/lebensmittel/
 
-# Create item
+# Create item with storage location and package
 POST /api/v1/lebensmittel/
 {
   "name": "Äpfel",
@@ -140,7 +164,10 @@ POST /api/v1/lebensmittel/
   "einheit": "Stück",
   "kategorie": "Obst",
   "ean_code": "1234567890123",
-  "mindestmenge": 3
+  "mindestmenge": 3,
+  "storage_location_id": 2,
+  "package_id": 1,
+  "package_count": 1
 }
 
 # Search by EAN
@@ -259,6 +286,29 @@ docker run -p 8000:8000 foodtrack-backend
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 📋 Changelog
+
+### 🎉 **v2.1.0 - Multi-Tenant System Release** (Latest)
+- ✅ **Complete Multi-Tenant Architecture** with household-based data isolation
+- ✅ **Storage Locations & Packages** - Organize items by location and package type
+- ✅ **Fixed Backend Issues** - Standalone PHP endpoints without dependencies
+- ✅ **Enhanced Android UI** - Material Design 3 with improved navigation
+- ✅ **FIFO Batch System** - Advanced inventory management with expiration tracking
+- ✅ **Category Management** - Full CRUD operations for food categories
+- ✅ **Transaction Tracking** - Complete purchase and consumption history
+
+### 📱 **v2.0.0 - Multi-Tenant Foundation**
+- 🏠 Multi-Tenant database schema
+- 👥 Household and user management
+- 📍 Storage location management
+- 📦 Package management system
+
+### 🚀 **v1.x - Initial Release**
+- 📱 Android app with barcode scanning
+- 🌐 PHP/Python backend options
+- 📊 Basic inventory management
+- 🏷️ EAN code integration
+
 ## 🙏 Acknowledgments
 
 - **OpenFoodFacts** - Product database API
@@ -271,7 +321,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **📧 Email:** knut.wehr@gmail.com
 - **🐛 Issues:** [GitHub Issues](https://github.com/knuwe1/FoodTrack/issues)
 - **📖 Wiki:** [Project Wiki](https://github.com/knuwe1/FoodTrack/wiki)
+- **🚀 Releases:** [GitHub Releases](https://github.com/knuwe1/FoodTrack/releases)
 
 ---
 
-**Made with ❤️ for better food management**
+**Made with ❤️ for better food management and Multi-Tenant architecture**
